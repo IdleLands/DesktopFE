@@ -29,6 +29,7 @@ namespace IdleLandsGUI
             playerUpdateDelegates = new List<PlayerUpdate>();
             timeSinceLastTurn = new Stopwatch();
             Client = new RestClient("https://api.idle.land");
+            //Client = new RestClient("http://localhost:80");
             Client.Timeout = 20000;
             LoggedIn = false;
         }
@@ -99,7 +100,7 @@ namespace IdleLandsGUI
                 LoggedIn = response.Data.Success();
                 if (LoggedIn && success != null)
                     success(response.Data.player);
-                else if(failure != null)
+                else if(!LoggedIn && failure != null)
                     failure(response.Data.player);
             }
         }
@@ -126,7 +127,8 @@ namespace IdleLandsGUI
             if (!response.Data.Success())
             {
                 if (response.Data.code == "-1" || response.Data.code == "10")
-                    AdvancedLogin(GetToken(), Password, null, info => { MessageBox.Show("Fuck, crashing program: " + response.Data.message); Application.Exit(); });
+                    AdvancedLogin(GetToken(), Password, null, info => { MessageBox.Show("Fuck, crashing program with code " + response.Data.code +
+                        ": " + response.Data.message); Application.Exit(); });
                 else if (response.Data.code != "100")
                 {
                     MessageBox.Show("Problem taking turn. Code: " + response.Data.code + " message: " + response.Data.message);
@@ -149,7 +151,7 @@ namespace IdleLandsGUI
             if (!timeSinceLastTurn.IsRunning)
                 timeSinceLastTurn.Start();
 
-            if(timeSinceLastTurn.ElapsedMilliseconds > 10000)
+            if(timeSinceLastTurn.ElapsedMilliseconds > 10100)
             {
                 SendTurn();
                 timeSinceLastTurn.Reset();

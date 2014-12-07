@@ -28,6 +28,7 @@ namespace IdleLandsGUI.Model
         public string water { get; set; }
         public string earth { get; set; }
         public string thunder { get; set; }
+        public string ice { get; set; }
         public string xp { get; set; }
         public string gold { get; set; }
         public string strPercent { get; set; }
@@ -43,6 +44,7 @@ namespace IdleLandsGUI.Model
         public string waterPercent { get; set; }
         public string earthPercent { get; set; }
         public string thunderPercent { get; set; }
+        public string icePercent { get; set; }
         public string xpPercent { get; set; }
         public string goldPercent { get; set; }
         public string enchantLevel { get; set; }

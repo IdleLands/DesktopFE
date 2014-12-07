@@ -1,6 +1,7 @@
 ﻿using RestSharp.Deserializers;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,14 +12,19 @@ namespace IdleLandsGUI.Model
     {
         public string name { get; set; }
         public string identifier { get; set; }
+        [IconElement(Name = "heart.png", Colour = "Red")]
         public StatInfo hp { get; set; }
+        [IconElement(Name = "magic.png", Colour = "Blue")]
         public StatInfo mp { get; set; }
+        [IconElement(Name = "asterisk.png", Colour = "Yellow")]
         public StatInfo special { get; set; }
         public StatInfo level { get; set; }
         public List<EquipmentInfo> equipment { get; set; }
         [NotAGuiElement]
         public string createDate { get; set; }
+        [IconElement(HideMax = false)]
         public StatInfo xp { get; set; }
+        [IconElement(Name = "money.png", Colour = "Yellow", HideMax = true)]
         public StatInfo gold { get; set; }
         public string x { get; set; }
         public string y { get; set; }
@@ -45,8 +51,7 @@ namespace IdleLandsGUI.Model
         public string _event { get; set; }
         [NotAGuiElement]
         public string _baseStats { get; set; }
-        [NotAGuiElement]
-        public string _statCache { get; set; }
+        public StatCacheInfo _statCache { get; set; }
         public string wildcard { get; set; }
         [NotAGuiElement]
         public string listenerTree { get; set; }

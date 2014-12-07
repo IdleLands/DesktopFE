@@ -86,15 +86,45 @@ namespace IdleLandsGUI
                     StatInfo statVal = val as StatInfo;
                     List<EquipmentInfo> equipmentVal = val as List<EquipmentInfo>;
                     List<IdleLandsGUI.Model.EventInfo> eventVal = val as List<IdleLandsGUI.Model.EventInfo>;
+                    StatCacheInfo statCacheVal = val as StatCacheInfo;
                     if (statVal != null)
                     {
                         TabPage tab = InfoTabControl.TabPages[0];
-                        AddLabel(tab, x, y, propertyInfo.Name, propertyInfo.Name + ": " + statVal.__current + "/" + statVal.maximum);
-                        y += 15;
-                        if (y + 50 > tab.Size.Height)
+                        var iconAttrib = (IconElementAttribute)propertyInfo.GetCustomAttributes(typeof(IconElementAttribute), false).FirstOrDefault();
+
+                        if (iconAttrib != null)
                         {
-                            y = 0;
-                            x += 200;
+                            int tempX = x;
+                            if (!string.IsNullOrEmpty(iconAttrib.Name))
+                            {
+                                AddIcon(tab, x, y, propertyInfo.Name + "_icon", iconAttrib.Name, Color.FromName(iconAttrib.Colour));
+                                tempX += 20;
+                            }
+
+                            if (iconAttrib.HideMax)
+                            {
+                                AddLabel(tab, tempX, y, propertyInfo.Name, statVal.__current.ToString());
+                            }
+                            else
+                            {
+                                AddLabel(tab, tempX, y, propertyInfo.Name, statVal.__current + "/" + statVal.maximum);
+                            }
+                            y += 15;
+                            if (y + 50 > tab.Size.Height)
+                            {
+                                y = 0;
+                                x += 200;
+                            }
+                        }
+                        else
+                        {
+                            AddLabel(tab, x, y, propertyInfo.Name, propertyInfo.Name + ": " + statVal.__current + "/" + statVal.maximum);
+                            y += 15;
+                            if (y + 50 > tab.Size.Height)
+                            {
+                                y = 0;
+                                x += 200;
+                            }
                         }
                     }
                     else if (equipmentVal != null)
@@ -112,15 +142,26 @@ namespace IdleLandsGUI
                             }
                         }
                     }
-                    else if (eventVal != null)
+                    else if (statCacheVal != null)
                     {
-                        eventVal.Reverse();
-                        TabPage tab = InfoTabControl.TabPages[2];
-                        int x2 = 15, y2 = 0;
-                        foreach (IdleLandsGUI.Model.EventInfo item in eventVal)
+                        TabPage tab = InfoTabControl.TabPages[0];
+                        int x2 = x + 250, y2 = 0;
+                        foreach (PropertyInfo statCachePropertyInfo in statCacheVal.GetType().GetProperties())
                         {
-                            var labelSize = AddAutoSizeLabel(tab, x2, y2, "event_" + item._id, item.message);
-                            y2 += labelSize.Height;
+                            var iconAttrib = (IconElementAttribute)statCachePropertyInfo.GetCustomAttributes(typeof(IconElementAttribute), false).FirstOrDefault();
+
+                            if (iconAttrib != null)
+                            {
+                                AddIcon(tab, x2, y2, statCachePropertyInfo.Name + "_icon", iconAttrib.Name, Color.FromName(iconAttrib.Colour));
+                                AddLabel(tab, x2 + 20, y2, statCachePropertyInfo.Name, statCachePropertyInfo.GetValue(statCacheVal, null).ToString());
+                            }
+
+                            y2 += 15;
+                            if (y2 + 50 > tab.Size.Height)
+                            {
+                                y2 = 0;
+                                x2 += 200;
+                            }
                         }
                     }
                     else if (val.GetType() == typeof(string))
@@ -159,11 +200,27 @@ namespace IdleLandsGUI
                     StatInfo statVal = val as StatInfo;
                     List<EquipmentInfo> equipmentVal = val as List<EquipmentInfo>;
                     List<IdleLandsGUI.Model.EventInfo> eventVal = val as List<IdleLandsGUI.Model.EventInfo>;
+                    StatCacheInfo statCacheVal = val as StatCacheInfo;
                     if (statVal != null)
                     {
                         if (_playerControls.TryGetValue(propertyInfo.Name, out tempControl))
                         {
-                            tempControl.Text = propertyInfo.Name + ": " + statVal.__current + "/" + statVal.maximum;
+                            var iconAttrib = (IconElementAttribute)propertyInfo.GetCustomAttributes(typeof(IconElementAttribute), false).FirstOrDefault();
+                            if (iconAttrib == null || string.IsNullOrEmpty(iconAttrib.Name))
+                            {
+                                string text = propertyInfo.Name + ": " + statVal.__current;
+                                if (iconAttrib == null || !iconAttrib.HideMax)
+                                    text += "/" + statVal.maximum;
+                                tempControl.Text = text;
+                            }
+                            else if(iconAttrib.HideMax)
+                            {
+                                tempControl.Text = statVal.__current.ToString();
+                            }
+                            else
+                            {
+                                tempControl.Text = statVal.__current + "/" + statVal.maximum;
+                            }
                         }
                     }
                     else if (equipmentVal != null)
@@ -192,6 +249,17 @@ namespace IdleLandsGUI
                         {
                             var labelSize = AddAutoSizeLabel(tab, x2, y2, "event_" + item._id, item.message);
                             y2 += labelSize.Height + 10;
+                        }
+                    }
+                    else if (statCacheVal != null)
+                    {
+                        TabPage tab = InfoTabControl.TabPages[0];
+                        foreach (PropertyInfo statCachePropertyInfo in statCacheVal.GetType().GetProperties())
+                        {
+                            if (_playerControls.TryGetValue(statCachePropertyInfo.Name, out tempControl))
+                            {
+                                tempControl.Text = statCachePropertyInfo.GetValue(statCacheVal, null).ToString();
+                            }
                         }
                     }
                     else if (val.GetType() == typeof(string))
@@ -225,6 +293,29 @@ namespace IdleLandsGUI
             _playerControls.Add(Name, tempLabel);
             tab.Controls.Add(tempLabel);
             return tempLabel.Size;
+        }
+
+        private void AddIcon(TabPage tab, int x, int y, string Name, string IconName, Color? color = null)
+        {
+            if (color == null)
+                color = Color.Red;
+
+            PictureBox tempBox = new PictureBox();
+            tempBox.Location = new Point(x, y);
+            Bitmap img =  (Bitmap)Image.FromFile("Assets/fa-icons/" + IconName);
+            for (int i = 0; i < img.Height; i++)
+            {
+                for (int j = 0; j < img.Width; j++)
+                {
+                    Color orig = img.GetPixel(j, i);
+                    img.SetPixel(j, i, Color.FromArgb(orig.A, color.Value));
+                }
+            }
+            tempBox.Image = img;
+            tempBox.Size = new System.Drawing.Size(16, 16);
+
+            _playerControls.Add(Name, tempBox);
+            tab.Controls.Add(tempBox);
         }
     }
 }

@@ -36,6 +36,8 @@
             this.RegisterButton = new System.Windows.Forms.Button();
             this.AdvancedLoginButton = new System.Windows.Forms.Button();
             this.LoginFailedLabel = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -112,11 +114,21 @@
             this.LoginFailedLabel.Text = "Login failed.";
             this.LoginFailedLabel.Visible = false;
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Location = new System.Drawing.Point(160, 118);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(179, 118);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBox1.TabIndex = 8;
+            this.pictureBox1.TabStop = false;
+            // 
             // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(624, 442);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.LoginFailedLabel);
             this.Controls.Add(this.AdvancedLoginButton);
             this.Controls.Add(this.RegisterButton);
@@ -127,6 +139,7 @@
             this.Controls.Add(this.label1);
             this.Name = "LoginForm";
             this.Text = "IdleLands GUI (login)";
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -142,6 +155,7 @@
         private System.Windows.Forms.Button RegisterButton;
         private System.Windows.Forms.Button AdvancedLoginButton;
         private System.Windows.Forms.Label LoginFailedLabel;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 
