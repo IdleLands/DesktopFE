@@ -1,4 +1,5 @@
-﻿using RestSharp.Deserializers;
+﻿using IdleLandsGUI.CustomAttributes;
+using RestSharp.Deserializers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,38 +15,72 @@ namespace IdleLandsGUI.Model
         public string _class { get; set; }
         public string name { get; set; }
         public string itemClass { get; set; }
-        public string str { get; set; }
-        public string con { get; set; }
-        public string dex { get; set; }
+
+
+        [IconElement(Name = "legal.png")]
+        public long str { get; set; }
+        [IconElement(Name = "heart.png")]
+        public long con { get; set; }
+        [IconElement(Name = "crosshairs.png")]
+        public long dex { get; set; }
+        [IconElement(Name = "mortar-board.png")]
         [DeserializeAs(Name = "int")]
-        public string _int { get; set; }
-        public string wis { get; set; }
-        public string agi { get; set; }
-        public string luck { get; set; }
-        public string sentimentality { get; set; }
-        public string piety { get; set; }
-        public string fire { get; set; }
-        public string water { get; set; }
-        public string earth { get; set; }
-        public string thunder { get; set; }
-        public string ice { get; set; }
-        public string xp { get; set; }
-        public string gold { get; set; }
-        public string strPercent { get; set; }
-        public string conPercent { get; set; }
-        public string dexPercent { get; set; }
-        public string intPercent { get; set; }
-        public string wisPercent { get; set; }
-        public string agiPercent { get; set; }
-        public string luckPercent { get; set; }
-        public string sentimentalityPercent { get; set; }
-        public string pietyPercent { get; set; }
-        public string firePercent { get; set; }
-        public string waterPercent { get; set; }
-        public string earthPercent { get; set; }
-        public string thunderPercent { get; set; }
-        public string icePercent { get; set; }
-        public string xpPercent { get; set; }
+        public long _int { get; set; }
+        [IconElement(Name = "book.png")]
+        public long wis { get; set; }
+        [IconElement(Name = "bicycle.png")]
+        public long agi { get; set; }
+        [IconElement(Name = "moon-o.png")]
+        public long luck { get; set; }
+        [IconElement(Name = "fire.png")]
+        public long fire { get; set; }
+        [IconElement(Name = "tint.png")]
+        public long water { get; set; }
+        [IconElement(Name = "leaf.png")]
+        public long earth { get; set; }
+        [IconElement(Name = "bolt.png")]
+        public long thunder { get; set; }
+        [IconElement(Name = "bus.png")]
+        public long ice { get; set; }
+        [IconElement(Name = "bus.png")]
+        public long sentimentality { get; set; }
+        [IconElement(Name = "bus.png")]
+        public long piety { get; set; }
+        [IconElement(Name = "bus.png")]
+        public long xp { get; set; }
+        [IconElement(Name = "bus.png")]
+        public long gold { get; set; }
+        [EquipmentStat(BelongsTo = "str", IsPercent = true)]
+        public long strPercent { get; set; }
+        [EquipmentStat(BelongsTo = "con", IsPercent = true)]
+        public long conPercent { get; set; }
+        [EquipmentStat(BelongsTo = "dex", IsPercent = true)]
+        public long dexPercent { get; set; }
+        [EquipmentStat(BelongsTo = "_int", IsPercent = true)]
+        public long intPercent { get; set; }
+        [EquipmentStat(BelongsTo = "wis", IsPercent = true)]
+        public long wisPercent { get; set; }
+        [EquipmentStat(BelongsTo = "agi", IsPercent = true)]
+        public long agiPercent { get; set; }
+        [EquipmentStat(BelongsTo = "luck", IsPercent = true)]
+        public long luckPercent { get; set; }
+        [EquipmentStat(BelongsTo = "sentimentality", IsPercent = true)]
+        public long sentimentalityPercent { get; set; }
+        [EquipmentStat(BelongsTo = "piety", IsPercent = true)]
+        public long pietyPercent { get; set; }
+        [EquipmentStat(BelongsTo = "fire", IsPercent = true)]
+        public long firePercent { get; set; }
+        [EquipmentStat(BelongsTo = "water", IsPercent = true)]
+        public long waterPercent { get; set; }
+        [EquipmentStat(BelongsTo = "earth", IsPercent = true)]
+        public long earthPercent { get; set; }
+        [EquipmentStat(BelongsTo = "thunder", IsPercent = true)]
+        public long thunderPercent { get; set; }
+        [EquipmentStat(BelongsTo = "ice", IsPercent = true)]
+        public long icePercent { get; set; }
+        [EquipmentStat(BelongsTo = "xp", IsPercent = true)]
+        public long xpPercent { get; set; }
+        [EquipmentStat(BelongsTo = "gold", IsPercent = true)]
         public string goldPercent { get; set; }
         public string enchantLevel { get; set; }
         public string _calcScore { get; set; }

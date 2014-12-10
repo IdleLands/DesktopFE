@@ -1,4 +1,5 @@
-﻿using RestSharp.Deserializers;
+﻿using IdleLandsGUI.CustomAttributes;
+using RestSharp.Deserializers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,41 +11,41 @@ namespace IdleLandsGUI.Model
     public class StatCacheInfo
     {
         [IconElement(Name = "legal.png")]
-        public string str { get; set; }
+        public long str { get; set; }
         [IconElement(Name = "heart.png")]
-        public string con { get; set; }
+        public long con { get; set; }
         [IconElement(Name = "crosshairs.png")]
-        public string dex { get; set; }
+        public long dex { get; set; }
         [IconElement(Name = "mortar-board.png")]
         [DeserializeAs(Name = "int")]
-        public string _int { get; set; }
+        public long _int { get; set; }
         [IconElement(Name = "book.png")]
-        public string wis { get; set; }
+        public long wis { get; set; }
         [IconElement(Name = "bicycle.png")]
-        public string agi { get; set; }
+        public long agi { get; set; }
         [IconElement(Name = "moon-o.png")]
-        public string luck { get; set; }
+        public long luck { get; set; }
         [IconElement(Name = "fire.png")]
-        public string fire { get; set; }
+        public long fire { get; set; }
         [IconElement(Name = "tint.png")]
-        public string water { get; set; }
+        public long water { get; set; }
         [IconElement(Name = "leaf.png")]
-        public string earth { get; set; }
+        public long earth { get; set; }
         [IconElement(Name = "bolt.png")]
-        public string thunder { get; set; }
+        public long thunder { get; set; }
         [IconElement(Name = "bus.png")]
-        public string ice { get; set; }
-        public string strPercent { get; set; }
-        public string conPercent { get; set; }
-        public string dexPercent { get; set; }
-        public string intPercent { get; set; }
-        public string wisPercent { get; set; }
-        public string agiPercent { get; set; }
-        public string luckPercent { get; set; }
-        public string firePercent { get; set; }
-        public string waterPercent { get; set; }
-        public string earthPercent { get; set; }
-        public string thunderPercent { get; set; }
-        public string icePercent { get; set; }
+        public long ice { get; set; }
+        public long strPercent { get; set; }
+        public long conPercent { get; set; }
+        public long dexPercent { get; set; }
+        public long intPercent { get; set; }
+        public long wisPercent { get; set; }
+        public long agiPercent { get; set; }
+        public long luckPercent { get; set; }
+        public long firePercent { get; set; }
+        public long waterPercent { get; set; }
+        public long earthPercent { get; set; }
+        public long thunderPercent { get; set; }
+        public long icePercent { get; set; }
     }
 }

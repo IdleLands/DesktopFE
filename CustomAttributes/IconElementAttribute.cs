@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IdleLandsGUI
+namespace IdleLandsGUI.CustomAttributes
 {
     [System.AttributeUsage(System.AttributeTargets.Property)]
     public class IconElementAttribute : System.Attribute

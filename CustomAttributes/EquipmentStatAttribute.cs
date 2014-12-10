@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 namespace IdleLandsGUI.CustomAttributes
 {
     [System.AttributeUsage(System.AttributeTargets.Property)]
-    class NotAGuiElementAttribute : System.Attribute
+    class EquipmentStatAttribute : System.Attribute
     {
+        public string BelongsTo { get; set; }
+        public bool IsPercent { get; set; }
     }
 }

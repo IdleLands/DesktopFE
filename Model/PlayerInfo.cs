@@ -1,4 +1,5 @@
-﻿using RestSharp.Deserializers;
+﻿using IdleLandsGUI.CustomAttributes;
+using RestSharp.Deserializers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

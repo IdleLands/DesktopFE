@@ -1,4 +1,5 @@
-﻿using IdleLandsGUI.Model;
+﻿using IdleLandsGUI.CustomAttributes;
+using IdleLandsGUI.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -97,17 +98,17 @@ namespace IdleLandsGUI
                             int tempX = x;
                             if (!string.IsNullOrEmpty(iconAttrib.Name))
                             {
-                                AddIcon(tab, x, y, propertyInfo.Name + "_icon", iconAttrib.Name, Color.FromName(iconAttrib.Colour));
+                                AddIcon(tab, x, y, propertyInfo.Name + "_stat_icon", iconAttrib.Name, Color.FromName(iconAttrib.Colour));
                                 tempX += 20;
                             }
 
                             if (iconAttrib.HideMax)
                             {
-                                AddLabel(tab, tempX, y, propertyInfo.Name, statVal.__current.ToString());
+                                AddLabel(tab, tempX, y, propertyInfo.Name + "_stat", statVal.__current.ToString());
                             }
                             else
                             {
-                                AddLabel(tab, tempX, y, propertyInfo.Name, statVal.__current + "/" + statVal.maximum);
+                                AddLabel(tab, tempX, y, propertyInfo.Name + "_stat", statVal.__current + "/" + statVal.maximum);
                             }
                             y += 15;
                             if (y + 50 > tab.Size.Height)
@@ -118,7 +119,7 @@ namespace IdleLandsGUI
                         }
                         else
                         {
-                            AddLabel(tab, x, y, propertyInfo.Name, propertyInfo.Name + ": " + statVal.__current + "/" + statVal.maximum);
+                            AddLabel(tab, x, y, propertyInfo.Name + "_stat", propertyInfo.Name + ": " + statVal.__current + "/" + statVal.maximum);
                             y += 15;
                             if (y + 50 > tab.Size.Height)
                             {
@@ -133,13 +134,41 @@ namespace IdleLandsGUI
                         int x2 = 15, y2 = 0;
                         foreach (EquipmentInfo item in equipmentVal)
                         {
-                            AddLabel(tab, x2, y2, item.type, item.type + ": " + item.name);
-                            y2 += 15;
-                            if (y2 + 50 > tab.Size.Height)
+                            AddLabel(tab, x2, y2, item.type + "_equipment_label", item.type + ": " + item.name);
+
+                            int x3 = x2;
+
+                            foreach (PropertyInfo itemStatPropertyInfo in item.GetType().GetProperties())
                             {
-                                y2 = 0;
-                                x2 += 200;
+                                var iconAttrib = (IconElementAttribute)itemStatPropertyInfo.GetCustomAttributes(typeof(IconElementAttribute), false).FirstOrDefault();
+                                var equipAttrib = (EquipmentStatAttribute)itemStatPropertyInfo.GetCustomAttributes(typeof(EquipmentStatAttribute), false).FirstOrDefault();
+
+                                if (iconAttrib != null)
+                                {
+                                    AddIcon(tab, x3, y2 + 20, item.type + "_" + itemStatPropertyInfo.Name + "_equipment_icon",
+                                        iconAttrib.Name, Color.FromName(iconAttrib.Colour));
+                                    AddLabel(tab, x3 + 18, y2 + 20, item.type + "_" + itemStatPropertyInfo.Name + "_equipment",
+                                        itemStatPropertyInfo.GetValue(item, null).ToString(), 80);
+
+                                    x3 += 100;
+                                    if(x3 > 500)
+                                    {
+                                        y2 += 20;
+                                        x3 = x2;
+                                    }
+                                }
+                                else if(equipAttrib != null)
+                                {
+                                    Control tempControl = null;
+                                    if (_playerControls.TryGetValue(item.type + "_" + equipAttrib.BelongsTo + "_equipment", out tempControl))
+                                    {
+                                        long itemStat = Convert.ToInt64(itemStatPropertyInfo.GetValue(item, null));
+                                        tempControl.Text += " (" + ((itemStat < 0) ? "-" : "+") + itemStat + "%)";
+                                    }
+                                }
                             }
+
+                            y2 += 40;
                         }
                     }
                     else if (statCacheVal != null)
@@ -152,8 +181,8 @@ namespace IdleLandsGUI
 
                             if (iconAttrib != null)
                             {
-                                AddIcon(tab, x2, y2, statCachePropertyInfo.Name + "_icon", iconAttrib.Name, Color.FromName(iconAttrib.Colour));
-                                AddLabel(tab, x2 + 20, y2, statCachePropertyInfo.Name, statCachePropertyInfo.GetValue(statCacheVal, null).ToString());
+                                AddIcon(tab, x2, y2, statCachePropertyInfo.Name + "_statcache_icon", iconAttrib.Name, Color.FromName(iconAttrib.Colour));
+                                AddLabel(tab, x2 + 20, y2, statCachePropertyInfo.Name + "_statcache", statCachePropertyInfo.GetValue(statCacheVal, null).ToString());
                             }
 
                             y2 += 15;
@@ -167,7 +196,7 @@ namespace IdleLandsGUI
                     else if (val.GetType() == typeof(string))
                     {
                         TabPage tab = InfoTabControl.TabPages[0];
-                        AddLabel(tab, x, y, propertyInfo.Name, propertyInfo.Name + ": " + ((String)val));
+                        AddLabel(tab, x, y, propertyInfo.Name + "_val", propertyInfo.Name + ": " + ((String)val));
                         y += 15;
                         if (y + 50 > tab.Size.Height)
                         {
@@ -203,7 +232,7 @@ namespace IdleLandsGUI
                     StatCacheInfo statCacheVal = val as StatCacheInfo;
                     if (statVal != null)
                     {
-                        if (_playerControls.TryGetValue(propertyInfo.Name, out tempControl))
+                        if (_playerControls.TryGetValue(propertyInfo.Name + "_stat", out tempControl))
                         {
                             var iconAttrib = (IconElementAttribute)propertyInfo.GetCustomAttributes(typeof(IconElementAttribute), false).FirstOrDefault();
                             if (iconAttrib == null || string.IsNullOrEmpty(iconAttrib.Name))
@@ -227,9 +256,32 @@ namespace IdleLandsGUI
                     {
                         foreach (EquipmentInfo item in equipmentVal)
                         {
-                            if (_playerControls.TryGetValue(item.type, out tempControl))
+                            if (_playerControls.TryGetValue(item.type + "_equipment_label", out tempControl))
                             {
                                 tempControl.Text = item.type + ": " + item.name;
+                            }
+
+                            foreach (PropertyInfo itemStatPropertyInfo in item.GetType().GetProperties())
+                            {
+                                var iconAttrib = (IconElementAttribute)itemStatPropertyInfo.GetCustomAttributes(typeof(IconElementAttribute), false).FirstOrDefault();
+                                var equipAttrib = (EquipmentStatAttribute)itemStatPropertyInfo.GetCustomAttributes(typeof(EquipmentStatAttribute), false).FirstOrDefault();
+
+                                if(iconAttrib != null)
+                                {
+                                    if (_playerControls.TryGetValue(item.type + "_" + itemStatPropertyInfo.Name + "_equipment", out tempControl))
+                                    {
+                                        long itemStat = Convert.ToInt64(itemStatPropertyInfo.GetValue(item, null));
+                                        tempControl.Text = itemStat.ToString();
+                                    }
+                                }
+                                else if (equipAttrib != null)
+                                {
+                                    if (_playerControls.TryGetValue(item.type + "_" + equipAttrib.BelongsTo + "_equipment", out tempControl))
+                                    {
+                                        long itemStat = Convert.ToInt64(itemStatPropertyInfo.GetValue(item, null));
+                                        tempControl.Text += " (" + ((itemStat < 0) ? "-" : "+") + itemStat + "%)";
+                                    }
+                                }
                             }
                         }
                     }
@@ -256,7 +308,7 @@ namespace IdleLandsGUI
                         TabPage tab = InfoTabControl.TabPages[0];
                         foreach (PropertyInfo statCachePropertyInfo in statCacheVal.GetType().GetProperties())
                         {
-                            if (_playerControls.TryGetValue(statCachePropertyInfo.Name, out tempControl))
+                            if (_playerControls.TryGetValue(statCachePropertyInfo.Name + "_statcache", out tempControl))
                             {
                                 tempControl.Text = statCachePropertyInfo.GetValue(statCacheVal, null).ToString();
                             }
@@ -264,7 +316,7 @@ namespace IdleLandsGUI
                     }
                     else if (val.GetType() == typeof(string))
                     {
-                        if (_playerControls.TryGetValue(propertyInfo.Name, out tempControl))
+                        if (_playerControls.TryGetValue(propertyInfo.Name + "_val", out tempControl))
                         {
                             tempControl.Text = propertyInfo.Name + ": " + ((String)val);
                         }
@@ -287,7 +339,7 @@ namespace IdleLandsGUI
         {
             Label tempLabel = new Label();
             tempLabel.Location = new Point(x, y);
-            tempLabel.MaximumSize = new System.Drawing.Size(400, 0);
+            tempLabel.MaximumSize = new System.Drawing.Size(600, 0);
             tempLabel.AutoSize = true;
             tempLabel.Text = Text;
             _playerControls.Add(Name, tempLabel);

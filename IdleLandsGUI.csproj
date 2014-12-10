@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomAttributes\EquipmentStatAttribute.cs" />
     <Compile Include="CustomAttributes\IconElementAttribute.cs" />
     <Compile Include="GenericBoundable.cs" />
     <Compile Include="IdleLandsComms.cs" />

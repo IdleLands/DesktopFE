@@ -29,7 +29,7 @@ namespace IdleLandsGUI
             LoginButton.Enabled = false;
             AdvancedLoginButton.Enabled = false;
             LoginFailedLabel.Visible = false;
-            Comms.Register(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessfulDelegate, LoginUnsuccessfulDelegate);
+            Comms.Register(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessful, LoginUnsuccessful);
         }
 
         private void LoginButton_Click(object sender, EventArgs e)
@@ -38,7 +38,7 @@ namespace IdleLandsGUI
             LoginButton.Enabled = false;
             AdvancedLoginButton.Enabled = false;
             LoginFailedLabel.Visible = false;
-            Comms.Login(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessfulDelegate, LoginUnsuccessfulDelegate);
+            Comms.Login(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessful, LoginUnsuccessful);
         }
 
         private void AdvancedLoginButton_Click(object sender, EventArgs e)
@@ -47,7 +47,15 @@ namespace IdleLandsGUI
             LoginButton.Enabled = false;
             AdvancedLoginButton.Enabled = false;
             LoginFailedLabel.Visible = false;
-            Comms.AdvancedLogin(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessfulDelegate, LoginUnsuccessfulDelegate);
+            Comms.AdvancedLogin(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessful, LoginUnsuccessful);
+        }
+
+        private void PasswordTextbox_KeyDown(object send, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Enter)
+            {
+                LoginButton.PerformClick();
+            }
         }
 
         private void LoginForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -62,9 +70,9 @@ namespace IdleLandsGUI
             }
         }
 
-        public delegate void LoginResult(PlayerInfo info);
+        public delegate void LoginResultDelegate(PlayerInfo info);
 
-        public void LoginSuccessfulDelegate(PlayerInfo info)
+        public void LoginSuccessful(PlayerInfo info)
         {
             this.Invoke((MethodInvoker)delegate
             {
@@ -75,13 +83,16 @@ namespace IdleLandsGUI
             });
         }
 
-        public void LoginUnsuccessfulDelegate(PlayerInfo info)
+        public delegate void LoginFailedDelegate(string message);
+
+        public void LoginUnsuccessful(string message)
         {
             this.Invoke((MethodInvoker)delegate
             {
                 RegisterButton.Enabled = true;
                 LoginButton.Enabled = true;
                 AdvancedLoginButton.Enabled = true;
+                LoginFailedLabel.Text = "Login failed: " + message;
                 LoginFailedLabel.Visible = true;
             });
         }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -28,15 +29,15 @@ namespace IdleLandsGUI
         {
             playerUpdateDelegates = new List<PlayerUpdate>();
             timeSinceLastTurn = new Stopwatch();
-            Client = new RestClient("https://api.idle.land");
-            //Client = new RestClient("http://localhost:80");
+            //Client = new RestClient("https://api.idle.land");
+            Client = new RestClient("http://127.0.0.1");
             Client.Timeout = 20000;
             LoggedIn = false;
         }
 
         //Public functions, mostly Async
 
-        public async void Register(String username, String password, IdleLandsGUI.LoginForm.LoginResult success, IdleLandsGUI.LoginForm.LoginResult failure)
+        public async void Register(String username, String password, IdleLandsGUI.LoginForm.LoginResultDelegate success, IdleLandsGUI.LoginForm.LoginFailedDelegate failure)
         {
             Username = username;
             Password = password;
@@ -45,7 +46,16 @@ namespace IdleLandsGUI
             request.AddParameter("name", Username);
             request.AddParameter("password", Password);
 
-            var response = await Client.ExecuteTaskAsync<LoginResponse>(request);
+            IRestResponse<LoginResponse> response = null;
+            try
+            {
+                response = await Client.ExecuteTaskAsync<LoginResponse>(request);
+            }
+            catch (WebException we)
+            {
+                failure(we.Message);
+                return;
+            }
 
             if (response.Data != null)
             {
@@ -54,11 +64,11 @@ namespace IdleLandsGUI
                 if (LoggedIn)
                     success(response.Data.player);
                 else
-                    failure(response.Data.player);
+                    failure(response.Data.code + ": " + response.Data.message);
             }
         }
 
-        public async void Login(String username, String password, IdleLandsGUI.LoginForm.LoginResult success, IdleLandsGUI.LoginForm.LoginResult failure)
+        public async void Login(String username, String password, IdleLandsGUI.LoginForm.LoginResultDelegate success, IdleLandsGUI.LoginForm.LoginFailedDelegate failure)
         {
             Username = username;
             Password = password;
@@ -68,7 +78,16 @@ namespace IdleLandsGUI
             request.AddParameter("password", Password);
             request.AddParameter("name", username);
 
-            var response = await Client.ExecuteTaskAsync<LoginResponse>(request);
+            IRestResponse<LoginResponse> response = null;
+            try
+            {
+                response = await Client.ExecuteTaskAsync<LoginResponse>(request);
+            }
+            catch (WebException we)
+            {
+                failure(we.Message);
+                return;
+            }
 
             if (response.Data != null)
             {
@@ -77,11 +96,11 @@ namespace IdleLandsGUI
                 if (LoggedIn)
                     success(response.Data.player);
                 else
-                    failure(response.Data.player);
+                    failure(response.Data.code + ": " + response.Data.message);
             }
         }
 
-        public async void AdvancedLogin(String usernameWithIdent, String password, IdleLandsGUI.LoginForm.LoginResult success, IdleLandsGUI.LoginForm.LoginResult failure)
+        public async void AdvancedLogin(String usernameWithIdent, String password, IdleLandsGUI.LoginForm.LoginResultDelegate success, IdleLandsGUI.LoginForm.LoginFailedDelegate failure)
         {
             Username = usernameWithIdent.Substring(usernameWithIdent.IndexOf('#'));
             Password = password;
@@ -92,7 +111,16 @@ namespace IdleLandsGUI
             request.AddParameter("password", Password);
             request.AddParameter("name", Username);
 
-            var response = await Client.ExecuteTaskAsync<LoginResponse>(request);
+            IRestResponse<LoginResponse> response = null;
+            try
+            {
+                response = await Client.ExecuteTaskAsync<LoginResponse>(request);
+            }
+            catch (WebException we)
+            {
+                failure(we.Message);
+                return;
+            }
 
             if (response.Data != null)
             {
@@ -101,7 +129,7 @@ namespace IdleLandsGUI
                 if (LoggedIn && success != null)
                     success(response.Data.player);
                 else if(!LoggedIn && failure != null)
-                    failure(response.Data.player);
+                    failure(response.Data.code + ": " + response.Data.message);
             }
         }
 
@@ -123,6 +151,9 @@ namespace IdleLandsGUI
             request.AddParameter("token", Token);
 
             var response = await Client.ExecuteTaskAsync<ActionResponse>(request);
+
+            if (response.StatusCode == HttpStatusCode.OK && response.Data == null)
+                return;
 
             if (!response.Data.Success())
             {
