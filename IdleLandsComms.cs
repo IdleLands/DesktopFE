@@ -21,7 +21,6 @@ namespace IdleLandsGUI
         //Bad O_o
         private String Password { get; set; }
         private String Token { get; set; }
-        private Uri BaseUri { get; set; }
         private bool LoggedIn { get; set; }
         private bool HasAdvancedLogin { get; set; }
         private string AdvancedIdentifier { get; set; }
@@ -38,7 +37,6 @@ namespace IdleLandsGUI
         public void SetServer(string server)
         {
             Uri uri = new Uri(server);
-            BaseUri = uri;
             Client = new RestClient(uri);
             
             Client.Timeout = 20000;
@@ -52,10 +50,6 @@ namespace IdleLandsGUI
             request.AddParameter("identifier", GetToken());
             request.AddParameter("name", Username);
             request.AddParameter("password", Password);
-
-            var uri = Client.BuildUri(request);
-            /*if (uri != BaseUri)
-                Client.BaseUrl = BaseUri;*/
 
             IRestResponse<LoginResponse> response = null;
             try
@@ -149,7 +143,7 @@ namespace IdleLandsGUI
             }
         }
 
-        public async void Logout()
+        public async void Logout(Func<bool> doOnComplete)
         {
             LoggedIn = false;
 
@@ -158,6 +152,8 @@ namespace IdleLandsGUI
             request.AddParameter("token", Token);
 
             var response = await Client.ExecuteTaskAsync<LoginResponse>(request);
+
+            doOnComplete();
         }
 
         public async void SendTurn()

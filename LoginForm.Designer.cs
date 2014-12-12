@@ -121,7 +121,7 @@
             this.ServerComboBox.Items.AddRange(new object[] {
             "http://localhost:80",
             "https://api.idle.land (Official)",
-            "https://31.25.101.129:3001 (Oipo-dev)"});
+            "http://31.25.101.129:3001 (Oipo-dev)"});
             this.ServerComboBox.Location = new System.Drawing.Point(76, 13);
             this.ServerComboBox.Name = "ServerComboBox";
             this.ServerComboBox.Size = new System.Drawing.Size(217, 21);

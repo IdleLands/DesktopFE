@@ -59,8 +59,7 @@ namespace IdleLandsGUI
                     == DialogResult.Cancel) e.Cancel = true;
                 else
                 {
-                    Comms.Logout();
-                    Application.Exit();
+                    Comms.Logout(() => {Application.Exit(); return true;});
                 }
             }
         }
