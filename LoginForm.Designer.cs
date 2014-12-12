@@ -36,12 +36,14 @@
             this.RegisterButton = new System.Windows.Forms.Button();
             this.AdvancedLoginButton = new System.Windows.Forms.Button();
             this.LoginFailedLabel = new System.Windows.Forms.Label();
+            this.ServerComboBox = new System.Windows.Forms.ComboBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(14, 9);
+            this.label1.Location = new System.Drawing.Point(12, 45);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(58, 13);
             this.label1.TabIndex = 0;
@@ -50,7 +52,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(14, 35);
+            this.label2.Location = new System.Drawing.Point(12, 71);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(56, 13);
             this.label2.TabIndex = 1;
@@ -58,14 +60,14 @@
             // 
             // UsernameTextbox
             // 
-            this.UsernameTextbox.Location = new System.Drawing.Point(78, 6);
+            this.UsernameTextbox.Location = new System.Drawing.Point(76, 42);
             this.UsernameTextbox.Name = "UsernameTextbox";
             this.UsernameTextbox.Size = new System.Drawing.Size(100, 20);
             this.UsernameTextbox.TabIndex = 2;
             // 
             // PasswordTextbox
             // 
-            this.PasswordTextbox.Location = new System.Drawing.Point(78, 32);
+            this.PasswordTextbox.Location = new System.Drawing.Point(76, 68);
             this.PasswordTextbox.Name = "PasswordTextbox";
             this.PasswordTextbox.PasswordChar = '*';
             this.PasswordTextbox.Size = new System.Drawing.Size(100, 20);
@@ -74,7 +76,7 @@
             // 
             // LoginButton
             // 
-            this.LoginButton.Location = new System.Drawing.Point(78, 59);
+            this.LoginButton.Location = new System.Drawing.Point(76, 95);
             this.LoginButton.Name = "LoginButton";
             this.LoginButton.Size = new System.Drawing.Size(75, 23);
             this.LoginButton.TabIndex = 4;
@@ -84,7 +86,7 @@
             // 
             // RegisterButton
             // 
-            this.RegisterButton.Location = new System.Drawing.Point(160, 59);
+            this.RegisterButton.Location = new System.Drawing.Point(158, 95);
             this.RegisterButton.Name = "RegisterButton";
             this.RegisterButton.Size = new System.Drawing.Size(75, 23);
             this.RegisterButton.TabIndex = 5;
@@ -94,7 +96,7 @@
             // 
             // AdvancedLoginButton
             // 
-            this.AdvancedLoginButton.Location = new System.Drawing.Point(78, 89);
+            this.AdvancedLoginButton.Location = new System.Drawing.Point(76, 125);
             this.AdvancedLoginButton.Name = "AdvancedLoginButton";
             this.AdvancedLoginButton.Size = new System.Drawing.Size(157, 23);
             this.AdvancedLoginButton.TabIndex = 6;
@@ -113,11 +115,34 @@
             this.LoginFailedLabel.Text = "Login failed.";
             this.LoginFailedLabel.Visible = false;
             // 
+            // ServerComboBox
+            // 
+            this.ServerComboBox.FormattingEnabled = true;
+            this.ServerComboBox.Items.AddRange(new object[] {
+            "http://localhost:80",
+            "https://api.idle.land (Official)",
+            "https://31.25.101.129:3001 (Oipo-dev)"});
+            this.ServerComboBox.Location = new System.Drawing.Point(76, 13);
+            this.ServerComboBox.Name = "ServerComboBox";
+            this.ServerComboBox.Size = new System.Drawing.Size(217, 21);
+            this.ServerComboBox.TabIndex = 8;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 16);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(41, 13);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "Server:";
+            // 
             // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(624, 442);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.ServerComboBox);
             this.Controls.Add(this.LoginFailedLabel);
             this.Controls.Add(this.AdvancedLoginButton);
             this.Controls.Add(this.RegisterButton);
@@ -143,6 +168,8 @@
         private System.Windows.Forms.Button RegisterButton;
         private System.Windows.Forms.Button AdvancedLoginButton;
         private System.Windows.Forms.Label LoginFailedLabel;
+        private System.Windows.Forms.ComboBox ServerComboBox;
+        private System.Windows.Forms.Label label3;
     }
 }
 

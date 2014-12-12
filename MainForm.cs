@@ -98,7 +98,8 @@ namespace IdleLandsGUI
                             int tempX = x;
                             if (!string.IsNullOrEmpty(iconAttrib.Name))
                             {
-                                AddIcon(tab, x, y, propertyInfo.Name + "_stat_icon", iconAttrib.Name, Color.FromName(iconAttrib.Colour));
+                                var control = AddIcon(tab, x, y, propertyInfo.Name + "_stat_icon", iconAttrib.Name, Color.FromName(iconAttrib.Colour));
+                                new ToolTip().SetToolTip(control, propertyInfo.Name);
                                 tempX += 20;
                             }
 
@@ -145,10 +146,12 @@ namespace IdleLandsGUI
 
                                 if (iconAttrib != null)
                                 {
-                                    AddIcon(tab, x3, y2 + 20, item.type + "_" + itemStatPropertyInfo.Name + "_equipment_icon",
+                                    var control = AddIcon(tab, x3, y2 + 20, item.type + "_" + itemStatPropertyInfo.Name + "_equipment_icon",
                                         iconAttrib.Name, Color.FromName(iconAttrib.Colour));
                                     AddLabel(tab, x3 + 18, y2 + 20, item.type + "_" + itemStatPropertyInfo.Name + "_equipment",
                                         itemStatPropertyInfo.GetValue(item, null).ToString(), 80);
+
+                                    new ToolTip().SetToolTip(control, itemStatPropertyInfo.Name);
 
                                     x3 += 100;
                                     if(x3 > 500)
@@ -181,8 +184,10 @@ namespace IdleLandsGUI
 
                             if (iconAttrib != null)
                             {
-                                AddIcon(tab, x2, y2, statCachePropertyInfo.Name + "_statcache_icon", iconAttrib.Name, Color.FromName(iconAttrib.Colour));
+                                var control = AddIcon(tab, x2, y2, statCachePropertyInfo.Name + "_statcache_icon", iconAttrib.Name, Color.FromName(iconAttrib.Colour));
                                 AddLabel(tab, x2 + 20, y2, statCachePropertyInfo.Name + "_statcache", statCachePropertyInfo.GetValue(statCacheVal, null).ToString());
+
+                                new ToolTip().SetToolTip(control, statCachePropertyInfo.Name);
                             }
 
                             y2 += 15;
@@ -347,7 +352,7 @@ namespace IdleLandsGUI
             return tempLabel.Size;
         }
 
-        private void AddIcon(TabPage tab, int x, int y, string Name, string IconName, Color? color = null)
+        private PictureBox AddIcon(TabPage tab, int x, int y, string Name, string IconName, Color? color = null)
         {
             if (color == null)
                 color = Color.Red;
@@ -368,6 +373,7 @@ namespace IdleLandsGUI
 
             _playerControls.Add(Name, tempBox);
             tab.Controls.Add(tempBox);
+            return tempBox;
         }
     }
 }

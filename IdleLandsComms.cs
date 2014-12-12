@@ -21,6 +21,7 @@ namespace IdleLandsGUI
         //Bad O_o
         private String Password { get; set; }
         private String Token { get; set; }
+        private Uri BaseUri { get; set; }
         private bool LoggedIn { get; set; }
         private bool HasAdvancedLogin { get; set; }
         private string AdvancedIdentifier { get; set; }
@@ -29,13 +30,19 @@ namespace IdleLandsGUI
         {
             playerUpdateDelegates = new List<PlayerUpdate>();
             timeSinceLastTurn = new Stopwatch();
-            //Client = new RestClient("https://api.idle.land");
-            Client = new RestClient("http://127.0.0.1");
-            Client.Timeout = 20000;
             LoggedIn = false;
         }
 
         //Public functions, mostly Async
+
+        public void SetServer(string server)
+        {
+            Uri uri = new Uri(server);
+            BaseUri = uri;
+            Client = new RestClient(uri);
+            
+            Client.Timeout = 20000;
+        }
 
         public async void Register(String username, String password, IdleLandsGUI.LoginForm.LoginResultDelegate success, IdleLandsGUI.LoginForm.LoginFailedDelegate failure)
         {
@@ -46,6 +53,10 @@ namespace IdleLandsGUI
             request.AddParameter("name", Username);
             request.AddParameter("password", Password);
 
+            var uri = Client.BuildUri(request);
+            /*if (uri != BaseUri)
+                Client.BaseUrl = BaseUri;*/
+
             IRestResponse<LoginResponse> response = null;
             try
             {
@@ -54,6 +65,11 @@ namespace IdleLandsGUI
             catch (WebException we)
             {
                 failure(we.Message);
+                return;
+            }
+            catch(Exception e)
+            {
+                failure("");
                 return;
             }
 

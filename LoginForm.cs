@@ -18,9 +18,12 @@ namespace IdleLandsGUI
         public LoginForm(IdleLandsComms comms)
         {
             InitializeComponent();
+            ServerComboBox.SelectedIndex = 0;
             Comms = comms;
+            Comms.SetServer(ServerComboBox.Text);
             ClosedByUser = true;
             this.FormClosing += LoginForm_FormClosing;
+            this.ServerComboBox.TextChanged += ServerComboBox_OnChange;
         }
 
         private void RegisterButton_Click(object sender, EventArgs e)
@@ -48,6 +51,14 @@ namespace IdleLandsGUI
             AdvancedLoginButton.Enabled = false;
             LoginFailedLabel.Visible = false;
             Comms.AdvancedLogin(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessful, LoginUnsuccessful);
+        }
+
+        private void ServerComboBox_OnChange(object sender, EventArgs e)
+        {
+            if(ServerComboBox.Text.Contains('('))
+                Comms.SetServer(ServerComboBox.Text.Substring(0, ServerComboBox.Text.IndexOf('(') - 1));
+            else
+                Comms.SetServer(ServerComboBox.Text);
         }
 
         private void PasswordTextbox_KeyDown(object send, KeyEventArgs e)
