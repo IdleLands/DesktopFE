@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IdleLandsGUI.SystemTray;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,9 +22,16 @@ namespace IdleLandsGUI
             timer.Interval = 1000;
             timer.Tick += comms.DoTick;
             timer.Start();
-            LoginForm form = new LoginForm(comms);
-            form.Show();
-            Application.Run();
+
+            using (ProcessIcon pi = new ProcessIcon(comms))
+            {
+                var menu = pi.Display();
+                LoginForm form = new LoginForm(comms, menu);
+                form.Show();
+                Application.Run();
+            }
+
+            
         }
     }
 }

@@ -58,7 +58,6 @@
   <ItemGroup>
     <Compile Include="CustomAttributes\EquipmentStatAttribute.cs" />
     <Compile Include="CustomAttributes\IconElementAttribute.cs" />
-    <Compile Include="Func.cs" />
     <Compile Include="GenericBoundable.cs" />
     <Compile Include="IdleLandsComms.cs" />
     <Compile Include="LoginForm.cs">
@@ -81,6 +80,8 @@
     <Compile Include="CustomAttributes\NotAGuiElementAttribute.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SystemTray\ContextMenu.cs" />
+    <Compile Include="SystemTray\ProcessIcon.cs" />
     <EmbeddedResource Include="LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -95,6 +96,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -1626,6 +1628,7 @@
     <Content Include="Assets\fa-icons\youtube.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\favicon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

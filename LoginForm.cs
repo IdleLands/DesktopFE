@@ -1,4 +1,5 @@
 ﻿using IdleLandsGUI.Model;
+using IdleLandsGUI.SystemTray;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,52 +14,57 @@ namespace IdleLandsGUI
 {
     public partial class LoginForm : Form
     {
-        private IdleLandsComms Comms { get; set; }
-        private bool ClosedByUser { get; set; }
-        public LoginForm(IdleLandsComms comms)
+        private IdleLandsComms _comms { get; set; }
+        private bool _closedByUser { get; set; }
+        private IdlelandContextMenu _menu { get; set; }
+        public LoginForm(IdleLandsComms comms, IdlelandContextMenu menu)
         {
             InitializeComponent();
             ServerComboBox.SelectedIndex = 0;
-            Comms = comms;
-            Comms.SetServer(ServerComboBox.Text);
-            ClosedByUser = true;
+            _comms = comms;
+            _menu = menu;
+            _menu.SetForm(this);
+            _comms.SetServer(ServerComboBox.Text);
+            _closedByUser = true;
             this.FormClosing += LoginForm_FormClosing;
             this.ServerComboBox.TextChanged += ServerComboBox_OnChange;
         }
 
-        private void RegisterButton_Click(object sender, EventArgs e)
+        private void DisableControls()
         {
             RegisterButton.Enabled = false;
             LoginButton.Enabled = false;
             AdvancedLoginButton.Enabled = false;
             LoginFailedLabel.Visible = false;
-            Comms.Register(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessful, LoginUnsuccessful);
+            ServerComboBox.Enabled = false;
+            UsernameTextbox.Enabled = false;
+            PasswordTextbox.Enabled = false;
+        }
+
+        private void RegisterButton_Click(object sender, EventArgs e)
+        {
+            DisableControls();
+            _comms.Register(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessful, LoginUnsuccessful);
         }
 
         private void LoginButton_Click(object sender, EventArgs e)
         {
-            RegisterButton.Enabled = false;
-            LoginButton.Enabled = false;
-            AdvancedLoginButton.Enabled = false;
-            LoginFailedLabel.Visible = false;
-            Comms.Login(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessful, LoginUnsuccessful);
+            DisableControls();
+            _comms.Login(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessful, LoginUnsuccessful);
         }
 
         private void AdvancedLoginButton_Click(object sender, EventArgs e)
         {
-            RegisterButton.Enabled = false;
-            LoginButton.Enabled = false;
-            AdvancedLoginButton.Enabled = false;
-            LoginFailedLabel.Visible = false;
-            Comms.AdvancedLogin(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessful, LoginUnsuccessful);
+            DisableControls();
+            _comms.AdvancedLogin(UsernameTextbox.Text, PasswordTextbox.Text, LoginSuccessful, LoginUnsuccessful);
         }
 
         private void ServerComboBox_OnChange(object sender, EventArgs e)
         {
             if(ServerComboBox.Text.Contains('('))
-                Comms.SetServer(ServerComboBox.Text.Substring(0, ServerComboBox.Text.IndexOf('(') - 1));
+                _comms.SetServer(ServerComboBox.Text.Substring(0, ServerComboBox.Text.IndexOf('(')).Trim());
             else
-                Comms.SetServer(ServerComboBox.Text);
+                _comms.SetServer(ServerComboBox.Text.Trim());
         }
 
         private void PasswordTextbox_KeyDown(object send, KeyEventArgs e)
@@ -71,7 +77,7 @@ namespace IdleLandsGUI
 
         private void LoginForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing && ClosedByUser)
+            if (e.CloseReason == CloseReason.UserClosing && _closedByUser)
             {
                 if (MessageBox.Show(this, "Really?", "Closing...",
                      MessageBoxButtons.OKCancel, MessageBoxIcon.Question)
@@ -87,8 +93,9 @@ namespace IdleLandsGUI
         {
             this.Invoke((MethodInvoker)delegate
             {
-                MainForm newForm = new MainForm(info, Comms);
-                ClosedByUser = false;
+                MainForm newForm = new MainForm(info, _comms);
+                _closedByUser = false;
+                _menu.SetForm(newForm);
                 this.Close();
                 newForm.Show();
             });
@@ -103,8 +110,12 @@ namespace IdleLandsGUI
                 RegisterButton.Enabled = true;
                 LoginButton.Enabled = true;
                 AdvancedLoginButton.Enabled = true;
+                ServerComboBox.Enabled = true;
+                UsernameTextbox.Enabled = true;
+                PasswordTextbox.Enabled = true;
                 LoginFailedLabel.Text = "Login failed: " + message;
                 LoginFailedLabel.Visible = true;
+                
             });
         }
     }

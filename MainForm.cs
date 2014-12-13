@@ -30,7 +30,7 @@ namespace IdleLandsGUI
                 UpdateGui(value);
             }
         }
-        private IdleLandsComms Comms { get; set; }
+        private IdleLandsComms _Comms { get; set; }
         public MainForm(PlayerInfo player, IdleLandsComms comms)
         {
             InitializeComponent();
@@ -41,7 +41,7 @@ namespace IdleLandsGUI
 
             Player = player;
             this.FormClosing += MainForm_FormClosing;
-            Comms = comms;
+            _Comms = comms;
             comms.AddPlayerUpdateDelegate(UpdatePlayer);
         }
 
@@ -59,7 +59,7 @@ namespace IdleLandsGUI
                     == DialogResult.Cancel) e.Cancel = true;
                 else
                 {
-                    Comms.Logout(() => {Application.Exit(); return true;});
+                    _Comms.Logout(() => {Application.Exit(); return true;});
                 }
             }
         }

@@ -14,22 +14,22 @@ namespace IdleLandsGUI
 {
     public class IdleLandsComms
     {
-        private const String programIdentifier = "IdleLandsGui#";
-        private Stopwatch timeSinceLastTurn { get; set; }
-        private RestClient Client { get; set; }
-        private String Username { get; set; }
+        private const String _programIdentifier = "IdleLandsGui#";
+        private Stopwatch _timeSinceLastTurn { get; set; }
+        private RestClient _client { get; set; }
+        private String _username { get; set; }
         //Bad O_o
-        private String Password { get; set; }
-        private String Token { get; set; }
-        private bool LoggedIn { get; set; }
-        private bool HasAdvancedLogin { get; set; }
-        private string AdvancedIdentifier { get; set; }
+        private String _password { get; set; }
+        private String _token { get; set; }
+        private bool _loggedIn { get; set; }
+        private bool _hasAdvancedLogin { get; set; }
+        private string _advancedIdentifier { get; set; }
 
         public IdleLandsComms()
         {
-            playerUpdateDelegates = new List<PlayerUpdate>();
-            timeSinceLastTurn = new Stopwatch();
-            LoggedIn = false;
+            _playerUpdateDelegates = new List<PlayerUpdate>();
+            _timeSinceLastTurn = new Stopwatch();
+            _loggedIn = false;
         }
 
         //Public functions, mostly Async
@@ -37,24 +37,24 @@ namespace IdleLandsGUI
         public void SetServer(string server)
         {
             Uri uri = new Uri(server);
-            Client = new RestClient(uri);
+            _client = new RestClient(uri);
             
-            Client.Timeout = 20000;
+            _client.Timeout = 20000;
         }
 
         public async void Register(String username, String password, IdleLandsGUI.LoginForm.LoginResultDelegate success, IdleLandsGUI.LoginForm.LoginFailedDelegate failure)
         {
-            Username = username;
-            Password = password;
+            _username = username;
+            _password = password;
             var request = new RestRequest("player/auth/register", Method.PUT);
             request.AddParameter("identifier", GetToken());
-            request.AddParameter("name", Username);
-            request.AddParameter("password", Password);
+            request.AddParameter("name", _username);
+            request.AddParameter("password", _password);
 
             IRestResponse<LoginResponse> response = null;
             try
             {
-                response = await Client.ExecuteTaskAsync<LoginResponse>(request);
+                response = await _client.ExecuteTaskAsync<LoginResponse>(request);
             }
             catch (WebException we)
             {
@@ -69,9 +69,9 @@ namespace IdleLandsGUI
 
             if (response.Data != null)
             {
-                Token = response.Data.token;
-                LoggedIn = response.Data.Success();
-                if (LoggedIn)
+                _token = response.Data.token;
+                _loggedIn = response.Data.Success();
+                if (_loggedIn)
                     success(response.Data.player);
                 else
                     failure(response.Data.code + ": " + response.Data.message);
@@ -80,18 +80,18 @@ namespace IdleLandsGUI
 
         public async void Login(String username, String password, IdleLandsGUI.LoginForm.LoginResultDelegate success, IdleLandsGUI.LoginForm.LoginFailedDelegate failure)
         {
-            Username = username;
-            Password = password;
-            HasAdvancedLogin = false;
+            _username = username;
+            _password = password;
+            _hasAdvancedLogin = false;
             var request = new RestRequest("/player/auth/login", Method.POST);
             request.AddParameter("identifier", GetToken());
-            request.AddParameter("password", Password);
+            request.AddParameter("password", _password);
             request.AddParameter("name", username);
 
             IRestResponse<LoginResponse> response = null;
             try
             {
-                response = await Client.ExecuteTaskAsync<LoginResponse>(request);
+                response = await _client.ExecuteTaskAsync<LoginResponse>(request);
             }
             catch (WebException we)
             {
@@ -101,9 +101,9 @@ namespace IdleLandsGUI
 
             if (response.Data != null)
             {
-                Token = response.Data.token;
-                LoggedIn = response.Data.Success();
-                if (LoggedIn)
+                _token = response.Data.token;
+                _loggedIn = response.Data.Success();
+                if (_loggedIn)
                     success(response.Data.player);
                 else
                     failure(response.Data.code + ": " + response.Data.message);
@@ -112,19 +112,19 @@ namespace IdleLandsGUI
 
         public async void AdvancedLogin(String usernameWithIdent, String password, IdleLandsGUI.LoginForm.LoginResultDelegate success, IdleLandsGUI.LoginForm.LoginFailedDelegate failure)
         {
-            Username = usernameWithIdent.Substring(usernameWithIdent.IndexOf('#'));
-            Password = password;
-            AdvancedIdentifier = usernameWithIdent;
-            HasAdvancedLogin = true;
+            _username = usernameWithIdent.Substring(usernameWithIdent.IndexOf('#'));
+            _password = password;
+            _advancedIdentifier = usernameWithIdent;
+            _hasAdvancedLogin = true;
             var request = new RestRequest("/player/auth/login", Method.POST);
             request.AddParameter("identifier", GetToken());
-            request.AddParameter("password", Password);
-            request.AddParameter("name", Username);
+            request.AddParameter("password", _password);
+            request.AddParameter("name", _username);
 
             IRestResponse<LoginResponse> response = null;
             try
             {
-                response = await Client.ExecuteTaskAsync<LoginResponse>(request);
+                response = await _client.ExecuteTaskAsync<LoginResponse>(request);
             }
             catch (WebException we)
             {
@@ -134,24 +134,24 @@ namespace IdleLandsGUI
 
             if (response.Data != null)
             {
-                Token = response.Data.token;
-                LoggedIn = response.Data.Success();
-                if (LoggedIn && success != null)
+                _token = response.Data.token;
+                _loggedIn = response.Data.Success();
+                if (_loggedIn && success != null)
                     success(response.Data.player);
-                else if(!LoggedIn && failure != null)
+                else if(!_loggedIn && failure != null)
                     failure(response.Data.code + ": " + response.Data.message);
             }
         }
 
         public async void Logout(Func<bool> doOnComplete)
         {
-            LoggedIn = false;
+            _loggedIn = false;
 
             var request = new RestRequest("/player/auth/logout", Method.POST);
             request.AddParameter("identifier", GetToken());
-            request.AddParameter("token", Token);
+            request.AddParameter("token", _token);
 
-            var response = await Client.ExecuteTaskAsync<LoginResponse>(request);
+            var response = await _client.ExecuteTaskAsync<LoginResponse>(request);
 
             doOnComplete();
         }
@@ -160,9 +160,9 @@ namespace IdleLandsGUI
         {
             var request = new RestRequest("/player/action/turn", Method.POST);
             request.AddParameter("identifier", GetToken());
-            request.AddParameter("token", Token);
+            request.AddParameter("token", _token);
 
-            var response = await Client.ExecuteTaskAsync<ActionResponse>(request);
+            var response = await _client.ExecuteTaskAsync<ActionResponse>(request);
 
             if (response.StatusCode == HttpStatusCode.OK && response.Data == null)
                 return;
@@ -170,7 +170,7 @@ namespace IdleLandsGUI
             if (!response.Data.Success())
             {
                 if (response.Data.code == "-1" || response.Data.code == "10")
-                    AdvancedLogin(GetToken(), Password, null, info => { MessageBox.Show("Fuck, crashing program with code " + response.Data.code +
+                    AdvancedLogin(GetToken(), _password, null, info => { MessageBox.Show("Fuck, crashing program with code " + response.Data.code +
                         ": " + response.Data.message); Application.Exit(); });
                 else if (response.Data.code != "100")
                 {
@@ -188,24 +188,24 @@ namespace IdleLandsGUI
 
         public void DoTick(object sender, EventArgs e)
         {
-            if (!LoggedIn)
+            if (!_loggedIn)
                 return;
 
-            if (!timeSinceLastTurn.IsRunning)
-                timeSinceLastTurn.Start();
+            if (!_timeSinceLastTurn.IsRunning)
+                _timeSinceLastTurn.Start();
 
-            if(timeSinceLastTurn.ElapsedMilliseconds > 10100)
+            if(_timeSinceLastTurn.ElapsedMilliseconds > 10100)
             {
                 SendTurn();
-                timeSinceLastTurn.Reset();
+                _timeSinceLastTurn.Reset();
             }
         }
 
         public String GetToken()
         {
-            if(!HasAdvancedLogin)
-                return programIdentifier + Username;
-            return AdvancedIdentifier;
+            if(!_hasAdvancedLogin)
+                return _programIdentifier + _username;
+            return _advancedIdentifier;
         }
 
         //Response definitions
@@ -238,11 +238,11 @@ namespace IdleLandsGUI
         public delegate void PlayerUpdate(PlayerInfo player);
 
         //Actual Delegates
-        private List<PlayerUpdate> playerUpdateDelegates { get; set; }
+        private List<PlayerUpdate> _playerUpdateDelegates { get; set; }
         
         private void SendPlayerUpdate(PlayerInfo info)
         {
-            foreach(var dele in playerUpdateDelegates)
+            foreach(var dele in _playerUpdateDelegates)
             {
                 dele(info);
             }
@@ -250,12 +250,12 @@ namespace IdleLandsGUI
 
         public void AddPlayerUpdateDelegate(PlayerUpdate updateDelegate)
         {
-            playerUpdateDelegates.Add(updateDelegate);
+            _playerUpdateDelegates.Add(updateDelegate);
         }
 
         public void RemovePlayerUpdateDelegate(PlayerUpdate updateDelegate)
         {
-            playerUpdateDelegates.Remove(updateDelegate);
+            _playerUpdateDelegates.Remove(updateDelegate);
         }
     }
 }
