@@ -1,4 +1,5 @@
 ﻿using IdleLandsGUI.Model;
+using IdleLandsGUI.Properties;
 using IdleLandsGUI.SystemTray;
 using System;
 using System.Collections.Generic;
@@ -20,11 +21,12 @@ namespace IdleLandsGUI
         public LoginForm(IdleLandsComms comms, IdlelandContextMenu menu)
         {
             InitializeComponent();
-            ServerComboBox.SelectedIndex = 0;
+            this.Icon = Icon.FromHandle(Resources.IdleLandsIcon.GetHicon());
+            ServerComboBox.SelectedIndex = 2;
             _comms = comms;
             _menu = menu;
             _menu.SetForm(this);
-            _comms.SetServer(ServerComboBox.Text);
+            _comms.SetServer(ServerComboBox.Text.Substring(0, ServerComboBox.Text.IndexOf('(')).Trim());
             _closedByUser = true;
             this.FormClosing += LoginForm_FormClosing;
             this.ServerComboBox.TextChanged += ServerComboBox_OnChange;

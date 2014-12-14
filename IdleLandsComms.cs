@@ -169,20 +169,65 @@ namespace IdleLandsGUI
 
             if (!response.Data.Success())
             {
-                if (response.Data.code == "-1" || response.Data.code == "10")
-                    AdvancedLogin(GetToken(), _password, null, info => { MessageBox.Show("Fuck, crashing program with code " + response.Data.code +
-                        ": " + response.Data.message); Application.Exit(); });
-                else if (response.Data.code != "100")
-                {
-                    MessageBox.Show("Problem taking turn. Code: " + response.Data.code + " message: " + response.Data.message);
-                    throw new Exception("This is bad?");
-                }
+                EnsureLoggedIn(response);
 
                 return;
             }
             if (response.Data != null && response.Data.player != null)
             {
                 SendPlayerUpdate(response.Data.player);
+            }
+        }
+
+        public async void SendGender(string gender, Func<bool> doOnComplete)
+        {
+            var request = new RestRequest("/player/manage/gender/set", Method.PUT);
+            request.AddParameter("identifier", GetToken());
+            request.AddParameter("gender", gender);
+            request.AddParameter("token", _token);
+
+            var response = await _client.ExecuteTaskAsync<BaseResponse>(request);
+
+            if (!response.Data.Success())
+            {
+                EnsureLoggedIn(response);
+
+                return;
+            }
+
+            doOnComplete();
+        }
+
+        public async void SendPriorityPoints(PriorityPointsInfo priorityPoints)
+        {
+            var request = new RestRequest("/player/manage/priority/set", Method.PUT);
+            request.RequestFormat = DataFormat.Json;
+            /*request.AddParameter("identifier", GetToken());
+            request.AddParameter("stats", "{dex: 1}");
+            request.AddParameter("token", _token);*/
+
+            request.AddBody(new
+            {
+                stats = new
+                {
+                    priorityPoints.str,
+                    priorityPoints.dex,
+                    priorityPoints.con,
+                    priorityPoints.agi,
+                    @int = priorityPoints._int,
+                    priorityPoints.wis
+                },
+                identifier = GetToken(),
+                token = _token
+            });
+
+            var response = await _client.ExecuteTaskAsync<BaseResponse>(request);
+
+            if (!response.Data.Success())
+            {
+                EnsureLoggedIn(response);
+
+                return;
             }
         }
 
@@ -198,6 +243,23 @@ namespace IdleLandsGUI
             {
                 SendTurn();
                 _timeSinceLastTurn.Reset();
+            }
+        }
+
+        private void EnsureLoggedIn<T>(IRestResponse<T> response) where T : BaseResponse
+        {
+            if (response.Data.code == "-1" || response.Data.code == "10")
+            {
+                AdvancedLogin(GetToken(), _password, null, info =>
+                {
+                    MessageBox.Show("Fuck, crashing program with code " + response.Data.code +
+                        ": " + response.Data.message); Application.Exit();
+                });
+            }
+            else if (response.Data.code != "100")
+            {
+                MessageBox.Show("Problem taking turn. Code: " + response.Data.code + " message: " + response.Data.message);
+                throw new Exception("This is bad?");
             }
         }
 

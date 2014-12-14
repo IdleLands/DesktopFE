@@ -58,7 +58,6 @@
   <ItemGroup>
     <Compile Include="CustomAttributes\EquipmentStatAttribute.cs" />
     <Compile Include="CustomAttributes\IconElementAttribute.cs" />
-    <Compile Include="GenericBoundable.cs" />
     <Compile Include="IdleLandsComms.cs" />
     <Compile Include="LoginForm.cs">
       <SubType>Form</SubType>
@@ -75,6 +74,7 @@
     <Compile Include="Model\EquipmentInfo.cs" />
     <Compile Include="Model\EventInfo.cs" />
     <Compile Include="Model\PlayerInfo.cs" />
+    <Compile Include="Model\PriorityPointsInfo.cs" />
     <Compile Include="Model\StatCacheInfo.cs" />
     <Compile Include="Model\StatInfo.cs" />
     <Compile Include="CustomAttributes\NotAGuiElementAttribute.cs" />

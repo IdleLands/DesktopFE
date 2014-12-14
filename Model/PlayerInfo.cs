@@ -17,7 +17,7 @@ namespace IdleLandsGUI.Model
         public StatInfo hp { get; set; }
         [IconElement(Name = "magic.png", Colour = "Blue")]
         public StatInfo mp { get; set; }
-        [IconElement(Name = "asterisk.png", Colour = "Yellow")]
+        [IconElement(Name = "asterisk.png", Colour = "YellowGreen")]
         public StatInfo special { get; set; }
         public StatInfo level { get; set; }
         public List<EquipmentInfo> equipment { get; set; }
@@ -34,8 +34,7 @@ namespace IdleLandsGUI.Model
         public string overflow { get; set; }
         public string lastLogin { get; set; }
         public string gender { get; set; }
-        [NotAGuiElement]
-        public string priorityPoints { get; set; }
+        public PriorityPointsInfo priorityPoints { get; set; }
         public string isOnline { get; set; }
         public string registrationDate { get; set; }
         [NotAGuiElement]

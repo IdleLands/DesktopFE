@@ -1,5 +1,6 @@
 ﻿using IdleLandsGUI.CustomAttributes;
 using IdleLandsGUI.Model;
+using IdleLandsGUI.Properties;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,6 +35,7 @@ namespace IdleLandsGUI
         public MainForm(PlayerInfo player, IdleLandsComms comms)
         {
             InitializeComponent();
+            this.Icon = Icon.FromHandle(Resources.IdleLandsIcon.GetHicon());
 
             _playerControls = new Dictionary<string, Control>();
 
@@ -87,6 +89,7 @@ namespace IdleLandsGUI
                     List<EquipmentInfo> equipmentVal = val as List<EquipmentInfo>;
                     List<IdleLandsGUI.Model.EventInfo> eventVal = val as List<IdleLandsGUI.Model.EventInfo>;
                     StatCacheInfo statCacheVal = val as StatCacheInfo;
+                    PriorityPointsInfo priorityPointsVal = val as PriorityPointsInfo;
                     if (statVal != null)
                     {
                         TabPage tab = InfoTabControl.TabPages[0];
@@ -130,7 +133,7 @@ namespace IdleLandsGUI
                     }
                     else if (equipmentVal != null)
                     {
-                        TabPage tab = InfoTabControl.TabPages[1];
+                        TabPage tab = InfoTabControl.TabPages[2];
                         int x2 = 15, y2 = 0;
                         foreach (EquipmentInfo item in equipmentVal)
                         {
@@ -196,6 +199,15 @@ namespace IdleLandsGUI
                                 x2 += 200;
                             }
                         }
+                    }
+                    else if(priorityPointsVal != null)
+                    {
+                        StrTrackBar.Value = priorityPointsVal.str;
+                        ConTrackBar.Value = priorityPointsVal.con;
+                        DexTrackBar.Value = priorityPointsVal.dex;
+                        AgiTrackBar.Value = priorityPointsVal.agi;
+                        WisTrackBar.Value = priorityPointsVal.wis;
+                        IntTrackBar.Value = priorityPointsVal._int;
                     }
                     else if (val.GetType() == typeof(string))
                     {
@@ -292,7 +304,7 @@ namespace IdleLandsGUI
                     else if (eventVal != null)
                     {
                         eventVal.Reverse();
-                        TabPage tab = InfoTabControl.TabPages[2];
+                        TabPage tab = InfoTabControl.TabPages[3];
                         tab.Controls.Clear();
 
                         foreach(var keyval in _playerControls.Where(k => k.Key.StartsWith("event_")).ToList())
@@ -373,6 +385,30 @@ namespace IdleLandsGUI
             _playerControls.Add(Name, tempBox);
             tab.Controls.Add(tempBox);
             return tempBox;
+        }
+
+        private void ApplyPlayerSettingsButton_Click(object sender, EventArgs e)
+        {
+            PriorityPointsInfo info = new PriorityPointsInfo();
+            info.str = StrTrackBar.Value;
+            info.dex = DexTrackBar.Value;
+            info.con = ConTrackBar.Value;
+            info.agi = AgiTrackBar.Value;
+            info.wis = WisTrackBar.Value;
+            info._int = IntTrackBar.Value;
+
+            if(info.str + info.dex + info.con + info.agi + info.wis + info._int != 6)
+            {
+                MessageBox.Show("Combined value of priority points should be 6.");
+                return;
+            }
+
+            string gender = "female";
+            if (MaleRadioButton.Checked)
+                gender = "male";
+
+            _Comms.SendGender(gender, () => { _Comms.SendPriorityPoints(info); return true; });
+            
         }
     }
 }
