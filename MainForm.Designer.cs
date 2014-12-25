@@ -50,6 +50,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.EquipmentTab = new System.Windows.Forms.TabPage();
             this.EventsTab = new System.Windows.Forms.TabPage();
+            this.InventoryTab = new System.Windows.Forms.TabPage();
             this.InfoTabControl.SuspendLayout();
             this.PlayerSettingsTab.SuspendLayout();
             this.GenderGroupBox.SuspendLayout();
@@ -67,6 +68,7 @@
             this.InfoTabControl.Controls.Add(this.PlayerInfoTab);
             this.InfoTabControl.Controls.Add(this.PlayerSettingsTab);
             this.InfoTabControl.Controls.Add(this.EquipmentTab);
+            this.InfoTabControl.Controls.Add(this.InventoryTab);
             this.InfoTabControl.Controls.Add(this.EventsTab);
             this.InfoTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.InfoTabControl.Location = new System.Drawing.Point(0, 0);
@@ -284,6 +286,16 @@
             this.EventsTab.Text = "Events";
             this.EventsTab.UseVisualStyleBackColor = true;
             // 
+            // InventoryTab
+            // 
+            this.InventoryTab.Location = new System.Drawing.Point(4, 22);
+            this.InventoryTab.Name = "InventoryTab";
+            this.InventoryTab.Padding = new System.Windows.Forms.Padding(3);
+            this.InventoryTab.Size = new System.Drawing.Size(776, 536);
+            this.InventoryTab.TabIndex = 4;
+            this.InventoryTab.Text = "Inventory";
+            this.InventoryTab.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -332,6 +344,7 @@
         private System.Windows.Forms.RadioButton FemaleRadioButton;
         private System.Windows.Forms.RadioButton MaleRadioButton;
         private System.Windows.Forms.Button ApplyPlayerSettingsButton;
+        private System.Windows.Forms.TabPage InventoryTab;
 
 
     }

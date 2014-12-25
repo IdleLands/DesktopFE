@@ -31,7 +31,7 @@ namespace IdleLandsGUI.Model
         public string y { get; set; }
         public string map { get; set; }
         public string professionName { get; set; }
-        public string overflow { get; set; }
+        public List<EquipmentInfo> overflow { get; set; }
         public string lastLogin { get; set; }
         public string gender { get; set; }
         public PriorityPointsInfo priorityPoints { get; set; }

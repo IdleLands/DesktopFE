@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="CustomAttributes\EquipmentStatAttribute.cs" />
     <Compile Include="CustomAttributes\IconElementAttribute.cs" />
+    <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="IdleLandsComms.cs" />
     <Compile Include="LoginForm.cs">
       <SubType>Form</SubType>

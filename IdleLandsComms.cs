@@ -16,7 +16,6 @@ namespace IdleLandsGUI
     {
         private const String _programIdentifier = "IdleLandsGui#";
         private Stopwatch _timeSinceLastTurn { get; set; }
-        private RestClient _client { get; set; }
         private String _username { get; set; }
         //Bad O_o
         private String _password { get; set; }
@@ -24,6 +23,7 @@ namespace IdleLandsGUI
         private bool _loggedIn { get; set; }
         private bool _hasAdvancedLogin { get; set; }
         private string _advancedIdentifier { get; set; }
+        private string _serverAddress { get; set; }
 
         public IdleLandsComms()
         {
@@ -36,10 +36,7 @@ namespace IdleLandsGUI
 
         public void SetServer(string server)
         {
-            Uri uri = new Uri(server);
-            _client = new RestClient(uri);
-            
-            _client.Timeout = 20000;
+            _serverAddress = server;
         }
 
         public async void Register(String username, String password, IdleLandsGUI.LoginForm.LoginResultDelegate success, IdleLandsGUI.LoginForm.LoginFailedDelegate failure)
@@ -54,7 +51,7 @@ namespace IdleLandsGUI
             IRestResponse<LoginResponse> response = null;
             try
             {
-                response = await _client.ExecuteTaskAsync<LoginResponse>(request);
+                response = await GetClient().ExecuteTaskAsync<LoginResponse>(request);
             }
             catch (WebException we)
             {
@@ -91,7 +88,7 @@ namespace IdleLandsGUI
             IRestResponse<LoginResponse> response = null;
             try
             {
-                response = await _client.ExecuteTaskAsync<LoginResponse>(request);
+                response = await GetClient().ExecuteTaskAsync<LoginResponse>(request);
             }
             catch (WebException we)
             {
@@ -124,7 +121,7 @@ namespace IdleLandsGUI
             IRestResponse<LoginResponse> response = null;
             try
             {
-                response = await _client.ExecuteTaskAsync<LoginResponse>(request);
+                response = await GetClient().ExecuteTaskAsync<LoginResponse>(request);
             }
             catch (WebException we)
             {
@@ -141,6 +138,10 @@ namespace IdleLandsGUI
                 else if(!_loggedIn && failure != null)
                     failure(response.Data.code + ": " + response.Data.message);
             }
+            else
+            {
+                failure("Couldn't login due to an unknown reason.");
+            }
         }
 
         public async void Logout(Func<bool> doOnComplete)
@@ -151,9 +152,102 @@ namespace IdleLandsGUI
             request.AddParameter("identifier", GetToken());
             request.AddParameter("token", _token);
 
-            var response = await _client.ExecuteTaskAsync<LoginResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<LoginResponse>(request);
 
             doOnComplete();
+        }
+
+        public async void InventoryAdd(string slot, Func<bool> doOnComplete, Func<string, string, bool> doOnFailure)
+        {
+            var request = new RestRequest("/player/manage/inventory/add", Method.PUT);
+            request.AddParameter("identifier", GetToken());
+            request.AddParameter("token", _token);
+            request.AddParameter("itemSlot", slot);
+
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
+
+            if (EnsureLoggedIn(response, () =>
+                {
+                    InventoryAdd(slot, doOnComplete, doOnFailure);
+                    return true;
+                }))
+            {
+                return;
+            }
+
+            if (response.Data != null && response.Data.player != null)
+            {
+                SendPlayerUpdate(response.Data.player);
+            }
+            else if(response.Data != null && !response.Data.Success())
+            {
+                doOnFailure(response.Data.message, response.Data.code);
+            }
+
+            if (doOnComplete != null)
+                doOnComplete();
+        }
+
+        public async void InventorySell(string slot, Func<bool> doOnComplete, Func<string, string, bool> doOnFailure)
+        {
+            var request = new RestRequest("/player/manage/inventory/sell", Method.POST);
+            request.AddParameter("identifier", GetToken());
+            request.AddParameter("token", _token);
+            request.AddParameter("invSlot", slot);
+
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
+
+            if (EnsureLoggedIn(response, () =>
+            {
+                InventorySell(slot, doOnComplete, doOnFailure);
+                return true;
+            }))
+            {
+                return;
+            }
+
+            if (response.Data != null && response.Data.player != null)
+            {
+                SendPlayerUpdate(response.Data.player);
+            }
+            else if (response.Data != null && !response.Data.Success())
+            {
+                doOnFailure(response.Data.message, response.Data.code);
+            }
+
+            if (doOnComplete != null)
+                doOnComplete();
+        }
+
+        public async void InventorySwap(string slot, Func<bool> doOnComplete, Func<string, string, bool> doOnFailure)
+        {
+            var request = new RestRequest("/player/manage/inventory/swap", Method.PATCH);
+            request.AddParameter("identifier", GetToken());
+            request.AddParameter("token", _token);
+            request.AddParameter("invSlot", slot);
+
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
+
+            if (EnsureLoggedIn(response, () =>
+            {
+                InventorySwap(slot, doOnComplete, doOnFailure);
+                return true;
+            }))
+            {
+                return;
+            }
+
+            if (response.Data != null && response.Data.player != null)
+            {
+                SendPlayerUpdate(response.Data.player);
+            }
+            else if (response.Data != null && !response.Data.Success())
+            {
+                doOnFailure(response.Data.message, response.Data.code);
+            }
+
+            if (doOnComplete != null)
+                doOnComplete();
         }
 
         public async void SendTurn()
@@ -162,17 +256,16 @@ namespace IdleLandsGUI
             request.AddParameter("identifier", GetToken());
             request.AddParameter("token", _token);
 
-            var response = await _client.ExecuteTaskAsync<ActionResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
             if (response.StatusCode == HttpStatusCode.OK && response.Data == null)
                 return;
 
-            if (!response.Data.Success())
+            if (EnsureLoggedIn(response, null))
             {
-                EnsureLoggedIn(response);
-
                 return;
             }
+            
             if (response.Data != null && response.Data.player != null)
             {
                 SendPlayerUpdate(response.Data.player);
@@ -186,12 +279,14 @@ namespace IdleLandsGUI
             request.AddParameter("gender", gender);
             request.AddParameter("token", _token);
 
-            var response = await _client.ExecuteTaskAsync<BaseResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
 
-            if (!response.Data.Success())
+            if (EnsureLoggedIn(response, () =>
             {
-                EnsureLoggedIn(response);
-
+                SendGender(gender, doOnComplete);
+                return true;
+            }))
+            {
                 return;
             }
 
@@ -202,9 +297,6 @@ namespace IdleLandsGUI
         {
             var request = new RestRequest("/player/manage/priority/set", Method.PUT);
             request.RequestFormat = DataFormat.Json;
-            /*request.AddParameter("identifier", GetToken());
-            request.AddParameter("stats", "{dex: 1}");
-            request.AddParameter("token", _token);*/
 
             request.AddBody(new
             {
@@ -221,12 +313,14 @@ namespace IdleLandsGUI
                 token = _token
             });
 
-            var response = await _client.ExecuteTaskAsync<BaseResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
 
-            if (!response.Data.Success())
+            if (EnsureLoggedIn(response, () =>
             {
-                EnsureLoggedIn(response);
-
+                SendPriorityPoints(priorityPoints);
+                return true;
+            }))
+            {
                 return;
             }
         }
@@ -246,21 +340,37 @@ namespace IdleLandsGUI
             }
         }
 
-        private void EnsureLoggedIn<T>(IRestResponse<T> response) where T : BaseResponse
+        private bool EnsureLoggedIn<T>(IRestResponse<T> response, Func<bool> onSuccess) where T : BaseResponse
         {
-            if (response.Data.code == "-1" || response.Data.code == "10")
+            if (response.Data == null)
             {
-                AdvancedLogin(GetToken(), _password, null, info =>
-                {
-                    MessageBox.Show("Fuck, crashing program with code " + response.Data.code +
-                        ": " + response.Data.message); Application.Exit();
-                });
-            }
-            else if (response.Data.code != "100")
-            {
-                MessageBox.Show("Problem taking turn. Code: " + response.Data.code + " message: " + response.Data.message);
                 throw new Exception("This is bad?");
             }
+            if (response.Data.code == "-1" || response.Data.code == "10")
+            {
+                AdvancedLogin(GetToken(), _password, info =>
+                {
+                    if(onSuccess != null)
+                        onSuccess();
+                }, info =>
+                {
+                    MessageBox.Show("Fuck, crashing program with code " + response.Data.code +
+                        ": " + response.Data.message);
+                    Application.Exit();
+                });
+                return true;
+            }
+            return false;
+        }
+
+        private RestClient GetClient()
+        {
+            var client = new RestClient(_serverAddress);
+
+            client.Timeout = 20000;
+            //client.AddDefaultHeader("Connection", "close");
+
+            return client;
         }
 
         public String GetToken()

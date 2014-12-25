@@ -87,5 +87,10 @@ namespace IdleLandsGUI.Model
         public string _baseScore { get; set; }
         public string foundAt { get; set; }
 
+        // ???
+
+        public string punish { get; set; }
+        public string glowing { get; set; }
+
     }
 }

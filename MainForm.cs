@@ -19,18 +19,6 @@ namespace IdleLandsGUI
     {
         private PlayerInfo _player;
         private Dictionary<String, Control> _playerControls;
-        private PlayerInfo Player
-        {
-            get
-            {
-                return _player;
-            }
-            set
-            {
-                _player = value;
-                UpdateGui(value);
-            }
-        }
         private IdleLandsComms _Comms { get; set; }
         public MainForm(PlayerInfo player, IdleLandsComms comms)
         {
@@ -40,8 +28,8 @@ namespace IdleLandsGUI
             _playerControls = new Dictionary<string, Control>();
 
             CreateGui(player);
+            UpdatePlayer(player);
 
-            Player = player;
             this.FormClosing += MainForm_FormClosing;
             _Comms = comms;
             comms.AddPlayerUpdateDelegate(UpdatePlayer);
@@ -49,7 +37,8 @@ namespace IdleLandsGUI
 
         public void UpdatePlayer(PlayerInfo info)
         {
-            Player = info;
+            _player = info;
+            UpdateGui(info);
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -76,7 +65,7 @@ namespace IdleLandsGUI
             {
                 if (propertyInfo.CanRead)
                 {
-                    var labelAttrib = (NotAGuiElementAttribute)propertyInfo.GetCustomAttributes(typeof(NotAGuiElementAttribute), false).FirstOrDefault();
+                    var labelAttrib = GetAttribute<NotAGuiElementAttribute>(propertyInfo);
                     if (labelAttrib != null)
                         continue;
 
@@ -93,7 +82,7 @@ namespace IdleLandsGUI
                     if (statVal != null)
                     {
                         TabPage tab = InfoTabControl.TabPages[0];
-                        var iconAttrib = (IconElementAttribute)propertyInfo.GetCustomAttributes(typeof(IconElementAttribute), false).FirstOrDefault();
+                        var iconAttrib = GetAttribute<IconElementAttribute>(propertyInfo);
 
                         if (iconAttrib != null)
                         {
@@ -133,43 +122,61 @@ namespace IdleLandsGUI
                     }
                     else if (equipmentVal != null)
                     {
-                        TabPage tab = InfoTabControl.TabPages[2];
+                        TabPage tab = null;
+                        string controlNameType = "_equipment";
+                        if (propertyInfo.Name == "overflow")
+                        {
+                            tab = InfoTabControl.TabPages[3];
+                            controlNameType = "_overflow";
+                            continue;
+                        }
+                        else
+                        {
+                            tab = InfoTabControl.TabPages[2];
+                        }
                         int x2 = 15, y2 = 0;
                         foreach (EquipmentInfo item in equipmentVal)
                         {
-                            AddLabel(tab, x2, y2, item.type + "_equipment_label", item.type + ": " + item.name);
+                            AddLabel(tab, x2, y2, item.type + controlNameType + "_label", item.type + ": " + item.name);
+
+                            AddButton(tab, 600, y2, item.type + controlNameType + "_button", "Unequip", 0, (Button button, int slotNo) =>
+                            {
+                                button.Enabled = false;
+                                _Comms.InventoryAdd(item.type, () =>
+                                {
+                                    button.Enabled = true;
+                                    return true;
+                                }, (string msg, string code) =>
+                                {
+                                    MessageBox.Show(code + ": " + msg);
+                                    return true;
+                                });
+                                return true;
+                            });
 
                             int x3 = x2;
 
                             foreach (PropertyInfo itemStatPropertyInfo in item.GetType().GetProperties())
                             {
-                                var iconAttrib = (IconElementAttribute)itemStatPropertyInfo.GetCustomAttributes(typeof(IconElementAttribute), false).FirstOrDefault();
-                                var equipAttrib = (EquipmentStatAttribute)itemStatPropertyInfo.GetCustomAttributes(typeof(EquipmentStatAttribute), false).FirstOrDefault();
+                                var iconAttrib = GetAttribute<IconElementAttribute>(itemStatPropertyInfo);
+                                var equipAttrib = GetAttribute<EquipmentStatAttribute>(itemStatPropertyInfo);
 
                                 if (iconAttrib != null)
                                 {
-                                    var control = AddIcon(tab, x3, y2 + 20, item.type + "_" + itemStatPropertyInfo.Name + "_equipment_icon",
-                                        iconAttrib.Name, Color.FromName(iconAttrib.Colour));
-                                    AddLabel(tab, x3 + 18, y2 + 20, item.type + "_" + itemStatPropertyInfo.Name + "_equipment",
-                                        itemStatPropertyInfo.GetValue(item, null).ToString(), 80);
-
-                                    new ToolTip().SetToolTip(control, itemStatPropertyInfo.Name);
+                                    CreateItemGui(iconAttrib, tab, x3, y2, item.type + controlNameType + "_" + itemStatPropertyInfo.Name + controlNameType,
+                                        itemStatPropertyInfo.GetValue(item, null).ToString(), itemStatPropertyInfo.Name);
 
                                     x3 += 100;
-                                    if(x3 > 500)
+                                    if (x3 > 500)
                                     {
                                         y2 += 20;
                                         x3 = x2;
                                     }
                                 }
-                                else if(equipAttrib != null)
+                                else if (equipAttrib != null)
                                 {
-                                    Control tempControl = null;
-                                    if (_playerControls.TryGetValue(item.type + "_" + equipAttrib.BelongsTo + "_equipment", out tempControl))
-                                    {
-                                        long itemStat = Convert.ToInt64(itemStatPropertyInfo.GetValue(item, null));
-                                        tempControl.Text += " (" + ((itemStat < 0) ? "-" : "+") + itemStat + "%)";
-                                    }
+                                    CreateItemGui(iconAttrib, tab, x3, y2, item.type + controlNameType + "_" + equipAttrib.BelongsTo + controlNameType,
+                                        itemStatPropertyInfo.GetValue(item, null).ToString(), "");
                                 }
                             }
 
@@ -182,7 +189,7 @@ namespace IdleLandsGUI
                         int x2 = x + 250, y2 = 0;
                         foreach (PropertyInfo statCachePropertyInfo in statCacheVal.GetType().GetProperties())
                         {
-                            var iconAttrib = (IconElementAttribute)statCachePropertyInfo.GetCustomAttributes(typeof(IconElementAttribute), false).FirstOrDefault();
+                            var iconAttrib = GetAttribute<IconElementAttribute>(statCachePropertyInfo);
 
                             if (iconAttrib != null)
                             {
@@ -232,7 +239,7 @@ namespace IdleLandsGUI
             {
                 if (propertyInfo.CanRead)
                 {
-                    var labelAttrib = (NotAGuiElementAttribute)propertyInfo.GetCustomAttributes(typeof(NotAGuiElementAttribute), false).FirstOrDefault();
+                    var labelAttrib = GetAttribute<NotAGuiElementAttribute>(propertyInfo);
                     if (labelAttrib != null)
                         continue;
 
@@ -250,7 +257,7 @@ namespace IdleLandsGUI
                     {
                         if (_playerControls.TryGetValue(propertyInfo.Name + "_stat", out tempControl))
                         {
-                            var iconAttrib = (IconElementAttribute)propertyInfo.GetCustomAttributes(typeof(IconElementAttribute), false).FirstOrDefault();
+                            var iconAttrib = GetAttribute<IconElementAttribute>(propertyInfo);
                             if (iconAttrib == null || string.IsNullOrEmpty(iconAttrib.Name))
                             {
                                 string text = propertyInfo.Name + ": " + statVal.__current;
@@ -270,32 +277,113 @@ namespace IdleLandsGUI
                     }
                     else if (equipmentVal != null)
                     {
+                        string controlNameType = "_equipment";
+                        TabPage tab = null;
+                        if (propertyInfo.Name == "overflow")
+                        {
+                            controlNameType = "_overflow";
+                            List<Control> controls = _playerControls.RemoveAllKeys(x => x.Contains("_overflow"));
+                            tab = InfoTabControl.TabPages[3];
+                            foreach(Control control in controls)
+                            {
+                                tab.Controls.Remove(control);
+                            }
+                        }
+
+                        if (!equipmentVal.Any() || equipmentVal.All(x => x == null))
+                            continue;
+
+                        int slotNo = 0, x2 = 15, y = 0;
                         foreach (EquipmentInfo item in equipmentVal)
                         {
-                            if (_playerControls.TryGetValue(item.type + "_equipment_label", out tempControl))
+                            if (propertyInfo.Name == "overflow")
                             {
-                                tempControl.Text = item.type + ": " + item.name;
-                            }
+                                AddLabel(tab, x2, y, item.type + controlNameType + "_label", item.type + ": " + item.name);
 
-                            foreach (PropertyInfo itemStatPropertyInfo in item.GetType().GetProperties())
-                            {
-                                var iconAttrib = (IconElementAttribute)itemStatPropertyInfo.GetCustomAttributes(typeof(IconElementAttribute), false).FirstOrDefault();
-                                var equipAttrib = (EquipmentStatAttribute)itemStatPropertyInfo.GetCustomAttributes(typeof(EquipmentStatAttribute), false).FirstOrDefault();
-
-                                if(iconAttrib != null)
+                                AddButton(tab, 600, y, slotNo + controlNameType + "_button1", "Equip", slotNo, (Button button, int buttonSlot) =>
                                 {
-                                    if (_playerControls.TryGetValue(item.type + "_" + itemStatPropertyInfo.Name + "_equipment", out tempControl))
+                                    _Comms.InventorySwap(buttonSlot.ToString(), () =>
                                     {
-                                        long itemStat = Convert.ToInt64(itemStatPropertyInfo.GetValue(item, null));
-                                        tempControl.Text = itemStat.ToString();
+                                        button.Enabled = true;
+                                        return true;
+                                    }, (string msg, string code) =>
+                                    {
+                                        MessageBox.Show(code + ": " + msg);
+                                        return true;
+                                    });
+                                    button.Enabled = false;
+                                    return true;
+                                });
+                                AddButton(tab, 600, y + 35, slotNo + controlNameType + "_button2", "Sell", slotNo, (Button button, int buttonSlot) =>
+                                {
+                                    _Comms.InventorySell(buttonSlot.ToString(), () =>
+                                    {
+                                        button.Enabled = true;
+                                        return true;
+                                    }, (string msg, string code) =>
+                                    {
+                                        MessageBox.Show(code + ": " + msg);
+                                        return true;
+                                    });
+                                    button.Enabled = false;
+                                    return true;
+                                });
+
+                                foreach (PropertyInfo itemStatPropertyInfo in item.GetType().GetProperties())
+                                {
+                                    var iconAttrib = GetAttribute<IconElementAttribute>(itemStatPropertyInfo);
+                                    var equipAttrib = GetAttribute<EquipmentStatAttribute>(itemStatPropertyInfo);
+
+                                    if (iconAttrib != null)
+                                    {
+                                        CreateItemGui(iconAttrib, tab, x2, y, slotNo + controlNameType + "_" + itemStatPropertyInfo.Name + controlNameType,
+                                            itemStatPropertyInfo.GetValue(item, null).ToString(), itemStatPropertyInfo.Name);
+
+                                        x2 += 100;
+                                        if (x2 > 500)
+                                        {
+                                            y += 20;
+                                            x2 = 15;
+                                        }
+                                    }
+                                    else if (equipAttrib != null)
+                                    {
+                                        CreateItemGui(iconAttrib, tab, x2, y, slotNo + controlNameType + "_" + equipAttrib.BelongsTo + controlNameType,
+                                            itemStatPropertyInfo.GetValue(item, null).ToString(), "");
                                     }
                                 }
-                                else if (equipAttrib != null)
+
+                                slotNo++;
+                                y += 40;
+                                x2 = 15;
+                            }
+                            else
+                            {
+                                if (_playerControls.TryGetValue(item.type + controlNameType + "_label", out tempControl))
                                 {
-                                    if (_playerControls.TryGetValue(item.type + "_" + equipAttrib.BelongsTo + "_equipment", out tempControl))
+                                    tempControl.Text = item.type + ": " + item.name;
+                                }
+
+                                foreach (PropertyInfo itemStatPropertyInfo in item.GetType().GetProperties())
+                                {
+                                    var iconAttrib = GetAttribute<IconElementAttribute>(itemStatPropertyInfo);
+                                    var equipAttrib = GetAttribute<EquipmentStatAttribute>(itemStatPropertyInfo);
+
+                                    if (iconAttrib != null)
                                     {
-                                        long itemStat = Convert.ToInt64(itemStatPropertyInfo.GetValue(item, null));
-                                        tempControl.Text += " (" + ((itemStat < 0) ? "-" : "+") + itemStat + "%)";
+                                        if (_playerControls.TryGetValue(item.type + "_" + itemStatPropertyInfo.Name + controlNameType, out tempControl))
+                                        {
+                                            long itemStat = Convert.ToInt64(itemStatPropertyInfo.GetValue(item, null));
+                                            tempControl.Text = itemStat.ToString();
+                                        }
+                                    }
+                                    else if (equipAttrib != null)
+                                    {
+                                        if (_playerControls.TryGetValue(item.type + "_" + equipAttrib.BelongsTo + controlNameType, out tempControl))
+                                        {
+                                            long itemStat = Convert.ToInt64(itemStatPropertyInfo.GetValue(item, null));
+                                            tempControl.Text += " (" + ((itemStat < 0) ? "-" : "+") + itemStat + "%)";
+                                        }
                                     }
                                 }
                             }
@@ -304,7 +392,7 @@ namespace IdleLandsGUI
                     else if (eventVal != null)
                     {
                         eventVal.Reverse();
-                        TabPage tab = InfoTabControl.TabPages[3];
+                        TabPage tab = InfoTabControl.TabPages[4];
                         tab.Controls.Clear();
 
                         foreach(var keyval in _playerControls.Where(k => k.Key.StartsWith("event_")).ToList())
@@ -354,9 +442,17 @@ namespace IdleLandsGUI
         private Size AddAutoSizeLabel(TabPage tab, int x, int y, string Name, string Text)
         {
             Label tempLabel = new Label();
+
             tempLabel.Location = new Point(x, y);
             tempLabel.MaximumSize = new System.Drawing.Size(600, 0);
             tempLabel.AutoSize = true;
+            /* This doesn't work :(
+             * if (Text.Contains("http://"))
+            {
+                string url = Text.Substring(Text.IndexOf("http://"));
+                Text = Text.Substring(0, Text.IndexOf("http://"));
+                Text += "<a href=\"" + url + "\">here</a>";
+            }*/
             tempLabel.Text = Text;
             _playerControls.Add(Name, tempLabel);
             tab.Controls.Add(tempLabel);
@@ -387,6 +483,21 @@ namespace IdleLandsGUI
             return tempBox;
         }
 
+        private Button AddButton(TabPage tab, int x, int y, string Name, string Text, int slotNo, Func<Button, int, bool> onClickHandler)
+        {
+            Button tempButton = new Button();
+            tempButton.Location = new Point(600, y);
+            tempButton.Text = Text;
+            tempButton.Click += (Object o, EventArgs e) => 
+            {
+                onClickHandler(tempButton, slotNo);
+            };
+            _playerControls.Add(Name, tempButton);
+            tab.Controls.Add(tempButton);
+
+            return tempButton;
+        }
+
         private void ApplyPlayerSettingsButton_Click(object sender, EventArgs e)
         {
             PriorityPointsInfo info = new PriorityPointsInfo();
@@ -409,6 +520,32 @@ namespace IdleLandsGUI
 
             _Comms.SendGender(gender, () => { _Comms.SendPriorityPoints(info); return true; });
             
+        }
+
+        private T GetAttribute<T>(PropertyInfo info)
+        {
+            return (T)info.GetCustomAttributes(typeof(T), false).FirstOrDefault();
+        }
+
+        private void CreateItemGui(IconElementAttribute iconAttrib, TabPage tab, int x, int y,
+            string name, string labelText, string tooltipText)
+        {
+            if (iconAttrib != null)
+            {
+                var control = AddIcon(tab, x, y + 20, name + "_icon", iconAttrib.Name, Color.FromName(iconAttrib.Colour));
+                AddLabel(tab, x + 18, y + 20, name, labelText, 80);
+
+                new ToolTip().SetToolTip(control, tooltipText);
+            }
+            else
+            {
+                Control tempControl = null;
+                if (_playerControls.TryGetValue(name, out tempControl))
+                {
+                    long itemStat = Convert.ToInt64(labelText);
+                    tempControl.Text += " (" + ((itemStat < 0) ? "-" : "+") + itemStat + "%)";
+                }
+            }
         }
     }
 }
