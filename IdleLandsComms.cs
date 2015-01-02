@@ -109,7 +109,13 @@ namespace IdleLandsGUI
 
         public async void AdvancedLogin(String usernameWithIdent, String password, IdleLandsGUI.LoginForm.LoginResultDelegate success, IdleLandsGUI.LoginForm.LoginFailedDelegate failure)
         {
-            _username = usernameWithIdent.Substring(usernameWithIdent.IndexOf('#'));
+            if(usernameWithIdent.IndexOf('#') == -1)
+            {
+                failure("Username has to contain the '#' sign.");
+                return;
+            }
+
+            _username = usernameWithIdent.Substring(usernameWithIdent.IndexOf('#')-1);
             _password = password;
             _advancedIdentifier = usernameWithIdent;
             _hasAdvancedLogin = true;
@@ -197,6 +203,8 @@ namespace IdleLandsGUI
 
             var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
+            System.IO.File.AppendAllText(@"responses.txt", "\r\n\r\n!!!SELL!!!\r\n\r\n" + response.Content);
+
             if (EnsureLoggedIn(response, () =>
             {
                 InventorySell(slot, doOnComplete, doOnFailure);
@@ -228,6 +236,8 @@ namespace IdleLandsGUI
 
             var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
+            System.IO.File.AppendAllText(@"responses.txt", "\r\n\r\n!!!SWAP!!!\r\n\r\n" + response.Content);
+
             if (EnsureLoggedIn(response, () =>
             {
                 InventorySwap(slot, doOnComplete, doOnFailure);
@@ -257,6 +267,8 @@ namespace IdleLandsGUI
             request.AddParameter("token", _token);
 
             var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
+
+            System.IO.File.AppendAllText(@"responses.txt", "\r\n\r\n!!!ACTION!!!\r\n\r\n" + response.Content);
 
             if (response.StatusCode == HttpStatusCode.OK && response.Data == null)
                 return;
@@ -355,7 +367,7 @@ namespace IdleLandsGUI
                 }, info =>
                 {
                     MessageBox.Show("Fuck, crashing program with code " + response.Data.code +
-                        ": " + response.Data.message);
+                        ": " + response.Data.message + " - " + info);
                     Application.Exit();
                 });
                 return true;
