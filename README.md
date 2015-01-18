@@ -9,6 +9,6 @@ An IdleLands client built with .NET
 
 ![Equipment screen](/Assets/screenshots/equipment-alpha.png?raw=true "Equipment Screen")
 
-![Guilds screen](/Assets/screenshots/guilds-v0.2.png?raw=true "Equipment Screen")
+![Guilds screen](/Assets/screenshots/guild-v0.2.png?raw=true "Equipment Screen")
 
 ![Pets screen](/Assets/screenshots/pets-v0.2.png?raw=true "Equipment Screen")
