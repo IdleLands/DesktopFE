@@ -22,11 +22,14 @@ namespace IdleLandsGUI
         {
             InitializeComponent();
             this.Icon = Icon.FromHandle(Resources.IdleLandsIcon.GetHicon());
-            ServerComboBox.SelectedIndex = 2;
+            ServerComboBox.SelectedIndex = 1;
             _comms = comms;
             _menu = menu;
             _menu.SetForm(this);
-            _comms.SetServer(ServerComboBox.Text.Substring(0, ServerComboBox.Text.IndexOf('(')).Trim());
+            if (ServerComboBox.Text.IndexOf('(') >= 0)
+                _comms.SetServer(ServerComboBox.Text.Substring(0, ServerComboBox.Text.IndexOf('(')).Trim());
+            else
+                _comms.SetServer(ServerComboBox.Text.Trim());
             _closedByUser = true;
             this.FormClosing += LoginForm_FormClosing;
             this.ServerComboBox.TextChanged += ServerComboBox_OnChange;
@@ -89,9 +92,9 @@ namespace IdleLandsGUI
             }
         }
 
-        public delegate void LoginResultDelegate(PlayerInfo info);
+        public delegate void LoginResultDelegate(IdleLandsComms.ActionResponse info);
 
-        public void LoginSuccessful(PlayerInfo info)
+        public void LoginSuccessful(IdleLandsComms.ActionResponse info)
         {
             this.Invoke((MethodInvoker)delegate
             {

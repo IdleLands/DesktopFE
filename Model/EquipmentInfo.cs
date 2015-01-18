@@ -86,11 +86,25 @@ namespace IdleLandsGUI.Model
         public string _calcScore { get; set; }
         public string _baseScore { get; set; }
         public string foundAt { get; set; }
+        public ulong uid { get; set; }
 
-        // ???
+        // modifiers ???
 
-        public string punish { get; set; }
-        public string glowing { get; set; }
+        public int punish { get; set; }
+        public int glowing { get; set; }
+        public int sturdy { get; set; }
+        public int prone { get; set; }
+        public int defense { get; set; }
+        public int offense { get; set; }
+        public int absolute { get; set; }
+        public int hpregenPercent { get; set; }
+        public int hpregen { get; set; }
+        public int crit { get; set; }
+        public int startle { get; set; }
+        public int limitless { get; set; }
+
+        public List<float> itemFindRangeMultiplier { get; set; }
+
 
     }
 }

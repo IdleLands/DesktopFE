@@ -36,7 +36,7 @@ namespace IdleLandsGUI.SystemTray
             // Put the icon in the system tray and allow it react to mouse clicks.			
             _NotifyIcon.MouseClick += new MouseEventHandler(ni_MouseClick);
             _NotifyIcon.Icon = Icon.FromHandle(Resources.IdleLandsIcon.GetHicon());
-            _NotifyIcon.Text = "System Tray Utility Application Demonstration Program";
+            _NotifyIcon.Text = "DesktopFE";
             _NotifyIcon.Visible = true;
 
             // Attach a context menu.

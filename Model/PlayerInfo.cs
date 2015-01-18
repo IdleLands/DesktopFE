@@ -59,10 +59,14 @@ namespace IdleLandsGUI.Model
         public string newListener { get; set; }
         [NotAGuiElement]
         public string _conf { get; set; }
-        public string guildStatus { get; set; }
+        public int? guildStatus { get; set; }
+        public string guild { get; set; }
         public string personalityStrings { get; set; }
         public string permanentAchievements { get; set; }
         public List<EventInfo> recentEvents { get; set; }
-
+        [NotAGuiElement]
+        public string foundPets { get; set; }
+        //Restsharp doesn't support dictionaries, see https://github.com/restsharp/RestSharp/issues/607
+        public List<FoundPetInfo> workaroundPets { get; set; }
     }
 }

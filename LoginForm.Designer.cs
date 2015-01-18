@@ -152,7 +152,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Name = "LoginForm";
-            this.Text = "IdleLands GUI (login)";
+            this.Text = "IdleLands DesktopFE (login)";
             this.ResumeLayout(false);
             this.PerformLayout();
 

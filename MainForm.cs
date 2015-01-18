@@ -1,6 +1,8 @@
 ﻿using IdleLandsGUI.CustomAttributes;
 using IdleLandsGUI.Model;
 using IdleLandsGUI.Properties;
+using IdleLandsGUI.Tabs;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,24 +21,47 @@ namespace IdleLandsGUI
     {
         private PlayerInfo _player;
         private Dictionary<String, Control> _playerControls;
-        private IdleLandsComms _Comms { get; set; }
-        public MainForm(PlayerInfo player, IdleLandsComms comms)
+        private IdleLandsComms _comms { get; set; }
+        public MainForm(IdleLandsComms.ActionResponse response, IdleLandsComms comms)
         {
             InitializeComponent();
             this.Icon = Icon.FromHandle(Resources.IdleLandsIcon.GetHicon());
 
             _playerControls = new Dictionary<string, Control>();
 
-            CreateGui(player);
-            UpdatePlayer(player);
+            CreateGui(response.player);
+            UpdatePlayer(response.player);
 
             this.FormClosing += MainForm_FormClosing;
-            _Comms = comms;
+            _comms = comms;
             comms.AddPlayerUpdateDelegate(UpdatePlayer);
+
+            IdleLandsComms.PetResponse petResponse = new IdleLandsComms.PetResponse
+            {
+                pet = response.pet,
+                pets = response.pets
+            };
+
+            PetTab.Controls.Add(new PetTabPage(petResponse, comms));
         }
 
         public void UpdatePlayer(PlayerInfo info)
         {
+            if (info.foundPets != null)
+            {
+                var dict = JsonConvert.DeserializeObject<Dictionary<string, FoundPetInfo>>(info.foundPets);
+                info.workaroundPets = dict.Select(k => new FoundPetInfo
+                {
+                    name = k.Key,
+                    cost = k.Value.cost,
+                    purchaseDate = k.Value.purchaseDate,
+                    unlockDate = k.Value.unlockDate
+                }).ToList();
+            } 
+            else
+            {
+                info.workaroundPets = new List<FoundPetInfo>();
+            }
             _player = info;
             UpdateGui(info);
         }
@@ -46,11 +71,11 @@ namespace IdleLandsGUI
             if (e.CloseReason == CloseReason.UserClosing)
             {
                 if (MessageBox.Show(this, "Really?", "Closing...",
-                     MessageBoxButtons.OKCancel, MessageBoxIcon.Question)
-                    == DialogResult.Cancel) e.Cancel = true;
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.Cancel)
+                    e.Cancel = true;
                 else
                 {
-                    _Comms.Logout(() => {Application.Exit(); return true;});
+                    _comms.Logout(() => {Application.Exit(); return true;});
                 }
             }
         }
@@ -61,6 +86,24 @@ namespace IdleLandsGUI
 
             int x = 15;
             int y = 0;
+
+            OtherTextBox.Enabled = false;
+            if (info.gender.ToLower() == "male")
+            {
+                MaleRadioButton.Select();
+            }
+            else if (info.gender.ToLower() == "female")
+            {
+                FemaleRadioButton.Select();
+            }
+            else
+            {
+                OtherRadioButton.Select();
+                OtherTextBox.Text = info.gender;
+                OtherTextBox.Enabled = true;
+            }
+
+            //Dynamic stuff
             foreach (PropertyInfo propertyInfo in playerInfoType.GetProperties())
             {
                 if (propertyInfo.CanRead)
@@ -81,7 +124,7 @@ namespace IdleLandsGUI
                     PriorityPointsInfo priorityPointsVal = val as PriorityPointsInfo;
                     if (statVal != null)
                     {
-                        TabPage tab = InfoTabControl.TabPages[0];
+                        TabPage tab = InfoTabControl.TabPages.Cast<TabPage>().Single(page => page.Name == "PlayerInfoTab");
                         var iconAttrib = GetAttribute<IconElementAttribute>(propertyInfo);
 
                         if (iconAttrib != null)
@@ -126,13 +169,13 @@ namespace IdleLandsGUI
                         string controlNameType = "_equipment";
                         if (propertyInfo.Name == "overflow")
                         {
-                            tab = InfoTabControl.TabPages[3];
+                            tab = InfoTabControl.TabPages.Cast<TabPage>().Single(page => page.Name == "InventoryTab");
                             controlNameType = "_overflow";
                             continue;
                         }
                         else
                         {
-                            tab = InfoTabControl.TabPages[2];
+                            tab = InfoTabControl.TabPages.Cast<TabPage>().Single(page => page.Name == "EquipmentTab");
                         }
                         int x2 = 15, y2 = 0;
                         foreach (EquipmentInfo item in equipmentVal)
@@ -142,11 +185,11 @@ namespace IdleLandsGUI
                             AddButton(tab, 600, y2, item.type + controlNameType + "_button", "Unequip", 0, (Button button, int slotNo) =>
                             {
                                 button.Enabled = false;
-                                _Comms.InventoryAdd(item.type, () =>
+                                _comms.InventoryAdd(item.type, () =>
                                 {
                                     button.Enabled = true;
                                     return true;
-                                }, (string msg, string code) =>
+                                }, (string msg, int code) =>
                                 {
                                     MessageBox.Show(code + ": " + msg);
                                     return true;
@@ -185,7 +228,7 @@ namespace IdleLandsGUI
                     }
                     else if (statCacheVal != null)
                     {
-                        TabPage tab = InfoTabControl.TabPages[0];
+                        TabPage tab = InfoTabControl.TabPages.Cast<TabPage>().Single(page => page.Name == "PlayerInfoTab");
                         int x2 = x + 250, y2 = 0;
                         foreach (PropertyInfo statCachePropertyInfo in statCacheVal.GetType().GetProperties())
                         {
@@ -218,7 +261,7 @@ namespace IdleLandsGUI
                     }
                     else if (val.GetType() == typeof(string))
                     {
-                        TabPage tab = InfoTabControl.TabPages[0];
+                        TabPage tab = InfoTabControl.TabPages.Cast<TabPage>().Single(page => page.Name == "PlayerInfoTab");
                         AddLabel(tab, x, y, propertyInfo.Name + "_val", propertyInfo.Name + ": " + ((String)val));
                         y += 15;
                         if (y + 50 > tab.Size.Height)
@@ -235,6 +278,41 @@ namespace IdleLandsGUI
         {
             Type playerInfoType = info.GetType();
 
+            //static stuff
+            if (!info.guildStatus.HasValue || info.guildStatus == (int)Enums.GuildStatus.NotInAGuild)
+            {
+                CreateGuildButton.Enabled = true;
+                DisbandGuildButton.Enabled = false;
+                LeaveGuildButton.Enabled = false;
+                InvitePlayerGuildButton.Enabled = false;
+                AcceptInviteGuildButton.Enabled = true;
+            }
+            else if (info.guildStatus == (int)Enums.GuildStatus.RegularMember)
+            {
+                CreateGuildButton.Enabled = false;
+                DisbandGuildButton.Enabled = false;
+                LeaveGuildButton.Enabled = true;
+                InvitePlayerGuildButton.Enabled = false;
+                AcceptInviteGuildButton.Enabled = false;
+            }
+            else if (info.guildStatus == (int)Enums.GuildStatus.AdminMember)
+            {
+                CreateGuildButton.Enabled = false;
+                DisbandGuildButton.Enabled = false;
+                LeaveGuildButton.Enabled = true;
+                InvitePlayerGuildButton.Enabled = true;
+                AcceptInviteGuildButton.Enabled = false;
+            }
+            else if (info.guildStatus == (int)Enums.GuildStatus.Leader)
+            {
+                CreateGuildButton.Enabled = false;
+                DisbandGuildButton.Enabled = true;
+                LeaveGuildButton.Enabled = true;
+                InvitePlayerGuildButton.Enabled = true;
+                AcceptInviteGuildButton.Enabled = false;
+            }
+
+            //dynamic stuff
             foreach (PropertyInfo propertyInfo in playerInfoType.GetProperties())
             {
                 if (propertyInfo.CanRead)
@@ -253,6 +331,7 @@ namespace IdleLandsGUI
                     List<EquipmentInfo> equipmentVal = val as List<EquipmentInfo>;
                     List<IdleLandsGUI.Model.EventInfo> eventVal = val as List<IdleLandsGUI.Model.EventInfo>;
                     StatCacheInfo statCacheVal = val as StatCacheInfo;
+                    List<FoundPetInfo> workaroundPetsVal = val as List<FoundPetInfo>;
                     if (statVal != null)
                     {
                         if (_playerControls.TryGetValue(propertyInfo.Name + "_stat", out tempControl))
@@ -283,7 +362,7 @@ namespace IdleLandsGUI
                         {
                             controlNameType = "_overflow";
                             List<Control> controls = _playerControls.RemoveAllKeys(x => x.Contains("_overflow"));
-                            tab = InfoTabControl.TabPages[3];
+                            tab = InfoTabControl.TabPages.Cast<TabPage>().Single(page => page.Name == "InventoryTab");
                             foreach(Control control in controls)
                             {
                                 tab.Controls.Remove(control);
@@ -298,15 +377,18 @@ namespace IdleLandsGUI
                         {
                             if (propertyInfo.Name == "overflow")
                             {
-                                AddLabel(tab, x2, y, item.type + controlNameType + "_label", item.type + ": " + item.name);
+                                if (item == null || item.uid == 0)
+                                    continue;
+
+                                AddLabel(tab, x2, y, item.uid + controlNameType + "_label", item.type + ": " + item.name);
 
                                 AddButton(tab, 600, y, slotNo + controlNameType + "_button1", "Equip", slotNo, (Button button, int buttonSlot) =>
                                 {
-                                    _Comms.InventorySwap(buttonSlot.ToString(), () =>
+                                    _comms.InventorySwap(buttonSlot.ToString(), () =>
                                     {
                                         button.Enabled = true;
                                         return true;
-                                    }, (string msg, string code) =>
+                                    }, (string msg, int code) =>
                                     {
                                         MessageBox.Show(code + ": " + msg);
                                         return true;
@@ -316,11 +398,16 @@ namespace IdleLandsGUI
                                 });
                                 AddButton(tab, 600, y + 35, slotNo + controlNameType + "_button2", "Sell", slotNo, (Button button, int buttonSlot) =>
                                 {
-                                    _Comms.InventorySell(buttonSlot.ToString(), () =>
+                                    if (MessageBox.Show(this, "Sell " + item.name + "?", "Really sell?",
+                                     MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.Cancel)
+                                    {
+                                        return false;
+                                    }
+                                    _comms.InventorySell(buttonSlot.ToString(), () =>
                                     {
                                         button.Enabled = true;
                                         return true;
-                                    }, (string msg, string code) =>
+                                    }, (string msg, int code) =>
                                     {
                                         MessageBox.Show(code + ": " + msg);
                                         return true;
@@ -389,10 +476,36 @@ namespace IdleLandsGUI
                             }
                         }
                     }
+                    else if (workaroundPetsVal != null)
+                    {
+                        //controlNameType = "_overflow";
+                        List<Control> controls = _playerControls.RemoveAllKeys(x => x.Contains("_foundpets"));
+                        TabPage tab = InfoTabControl.TabPages.Cast<TabPage>().Single(page => page.Name == "BuyPetTab");
+                        foreach (Control control in controls)
+                        {
+                            tab.Controls.Remove(control);
+                        }
+
+                        int x2 = 15, y = 0;
+                        foreach (FoundPetInfo pet in workaroundPetsVal)
+                        {
+                            AddLabel(tab, x2, y, pet.name + "_foundpets_name", pet.name);
+                            AddLabel(tab, x2, y + 20, pet.name + "_foundpets_price", pet.cost.ToString());
+
+                            AddButton(tab, 600, y, pet.name + "_foundpets_button1", "Buy", pet.name, (Button button, string petName) =>
+                            {
+                                BuyPetForm newForm = new BuyPetForm(_comms, pet.name, pet.cost.ToString());
+                                newForm.Show();
+                                return true;
+                            });
+
+                            y += 60;
+                        }
+                    }
                     else if (eventVal != null)
                     {
                         eventVal.Reverse();
-                        TabPage tab = InfoTabControl.TabPages[4];
+                        TabPage tab = InfoTabControl.TabPages.Cast<TabPage>().Single(page => page.Name == "EventsTab");
                         tab.Controls.Clear();
 
                         foreach(var keyval in _playerControls.Where(k => k.Key.StartsWith("event_")).ToList())
@@ -409,7 +522,7 @@ namespace IdleLandsGUI
                     }
                     else if (statCacheVal != null)
                     {
-                        TabPage tab = InfoTabControl.TabPages[0];
+                        TabPage tab = InfoTabControl.TabPages.Cast<TabPage>().Single(page => page.Name == "PlayerInfoTab");
                         foreach (PropertyInfo statCachePropertyInfo in statCacheVal.GetType().GetProperties())
                         {
                             if (_playerControls.TryGetValue(statCachePropertyInfo.Name + "_statcache", out tempControl))
@@ -483,14 +596,14 @@ namespace IdleLandsGUI
             return tempBox;
         }
 
-        private Button AddButton(TabPage tab, int x, int y, string Name, string Text, int slotNo, Func<Button, int, bool> onClickHandler)
+        private Button AddButton<T>(TabPage tab, int x, int y, string Name, string Text, T comparisonValue, Func<Button, T, bool> onClickHandler)
         {
             Button tempButton = new Button();
             tempButton.Location = new Point(600, y);
             tempButton.Text = Text;
-            tempButton.Click += (Object o, EventArgs e) => 
+            tempButton.Click += (Object o, EventArgs e) =>
             {
-                onClickHandler(tempButton, slotNo);
+                onClickHandler(tempButton, comparisonValue);
             };
             _playerControls.Add(Name, tempButton);
             tab.Controls.Add(tempButton);
@@ -517,8 +630,22 @@ namespace IdleLandsGUI
             string gender = "female";
             if (MaleRadioButton.Checked)
                 gender = "male";
+            if (OtherRadioButton.Checked)
+                gender = OtherTextBox.Text;
 
-            _Comms.SendGender(gender, () => { _Comms.SendPriorityPoints(info); return true; });
+            _comms.SendGender(gender, () =>
+            {
+                _comms.SendPriorityPoints(info, null, (string msg, int code) =>
+                {
+                    MessageBox.Show(code + ": " + msg);
+                    return true;
+                });
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
             
         }
 
@@ -546,6 +673,99 @@ namespace IdleLandsGUI
                     tempControl.Text += " (" + ((itemStat < 0) ? "-" : "+") + itemStat + "%)";
                 }
             }
+        }
+
+        private void CreateGuildButton_Click(object sender, EventArgs e)
+        {
+            CreateGuildButton.Enabled = false;
+            _comms.SendCreateGuild(CreateGuildTextbox.Text, () =>
+            {
+                CreateGuildButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void DisbandGuildButton_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show(this, "Really disband?", "Disband guild?",
+                MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            DisbandGuildButton.Enabled = false;
+            _comms.SendDisbandGuild(() =>
+            {
+                DisbandGuildButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void LeaveGuildButton_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show(this, "Really leave?", "Leave guild?",
+                MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            LeaveGuildButton.Enabled = false;
+            _comms.SendLeaveGuild(() =>
+            {
+                LeaveGuildButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void InvitePlayerGuildButton_Click(object sender, EventArgs e)
+        {
+            InvitePlayerGuildButton.Enabled = false;
+            _comms.SendInvitePlayerGuild(InvitePlayerGuildTextbox.Text,
+            () =>
+            {
+                InvitePlayerGuildButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void AcceptInviteGuildButton_Click(object sender, EventArgs e)
+        {
+            //AcceptInviteGuildButton.Name
+            AcceptInviteGuildButton.Enabled = false;
+            _comms.SendInviteManageGuild(true, AcceptInviteGuildTextbox.Text,
+            () =>
+            {
+                AcceptInviteGuildButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void OtherRadioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            if (OtherRadioButton.Checked)
+                OtherTextBox.Enabled = true;
+            else
+                OtherTextBox.Enabled = false;
         }
     }
 }
