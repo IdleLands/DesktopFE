@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace IdleLandsGUI
 {
-    class AppSettings : ApplicationSettingsBase
+    public class AppSettings : ApplicationSettingsBase
     {
         [UserScopedSetting()]
         [DefaultSettingValue("false")]
@@ -34,6 +34,20 @@ namespace IdleLandsGUI
             set
             {
                 this["LogRequests"] = (bool)value;
+            }
+        }
+
+        [UserScopedSetting()]
+        [DefaultSettingValue("")]
+        public string Server
+        {
+            get
+            {
+                return ((string)this["Server"]);
+            }
+            set
+            {
+                this["Server"] = (string)value;
             }
         }
     }

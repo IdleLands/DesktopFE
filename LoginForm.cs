@@ -22,7 +22,20 @@ namespace IdleLandsGUI
         {
             InitializeComponent();
             this.Icon = Icon.FromHandle(Resources.IdleLandsIcon.GetHicon());
-            ServerComboBox.SelectedIndex = 1;
+
+            AppSettings apps = new AppSettings();
+
+            if (!string.IsNullOrEmpty(apps.Server))
+            {
+                int index = ServerComboBox.FindString(apps.Server);
+                if (index >= 0)
+                    ServerComboBox.SelectedIndex = index;
+                else
+                    ServerComboBox.SelectedIndex = 1;
+            }
+            else
+                ServerComboBox.SelectedIndex = 1;
+
             _comms = comms;
             _menu = menu;
             _menu.SetForm(this);
@@ -33,6 +46,9 @@ namespace IdleLandsGUI
             _closedByUser = true;
             this.FormClosing += LoginForm_FormClosing;
             this.ServerComboBox.TextChanged += ServerComboBox_OnChange;
+            
+            LogRequestsCheckbox.Checked = apps.LogRequests;
+            LogResponsesCheckbox.Checked = apps.LogResponses;
         }
 
         private void DisableControls()
@@ -98,6 +114,13 @@ namespace IdleLandsGUI
         {
             this.Invoke((MethodInvoker)delegate
             {
+                string server = ServerComboBox.Text.Trim();
+                if(server.Contains('('))
+                    server = server.Substring(0, server.IndexOf('(')).Trim();
+                AppSettings apps = new AppSettings();
+                apps.Server = server;
+                apps.Save();
+
                 MainForm newForm = new MainForm(info, _comms);
                 _closedByUser = false;
                 _menu.SetForm(newForm);
@@ -122,6 +145,22 @@ namespace IdleLandsGUI
                 LoginFailedLabel.Visible = true;
                 
             });
+        }
+
+        private void LogRequestsCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            AppSettings apps = new AppSettings();
+            apps.LogRequests = LogRequestsCheckbox.Checked;
+            apps.Save();
+            _comms.SetAppSettings(apps);
+        }
+
+        private void LogResponsesCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            AppSettings apps = new AppSettings();
+            apps.LogResponses = LogResponsesCheckbox.Checked;
+            apps.Save();
+            _comms.SetAppSettings(apps);
         }
     }
 }

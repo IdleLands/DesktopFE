@@ -56,14 +56,6 @@
             this.PetTab = new System.Windows.Forms.TabPage();
             this.EventsTab = new System.Windows.Forms.TabPage();
             this.GuildTab = new System.Windows.Forms.TabPage();
-            this.AcceptInviteGuildTextbox = new System.Windows.Forms.TextBox();
-            this.AcceptInviteGuildButton = new System.Windows.Forms.Button();
-            this.CreateGuildTextbox = new System.Windows.Forms.TextBox();
-            this.InvitePlayerGuildTextbox = new System.Windows.Forms.TextBox();
-            this.InvitePlayerGuildButton = new System.Windows.Forms.Button();
-            this.LeaveGuildButton = new System.Windows.Forms.Button();
-            this.DisbandGuildButton = new System.Windows.Forms.Button();
-            this.CreateGuildButton = new System.Windows.Forms.Button();
             this.InfoTabControl.SuspendLayout();
             this.PlayerSettingsTab.SuspendLayout();
             this.GenderGroupBox.SuspendLayout();
@@ -74,7 +66,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.AgiTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ConTrackBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.StrTrackBar)).BeginInit();
-            this.GuildTab.SuspendLayout();
             this.SuspendLayout();
             // 
             // InfoTabControl
@@ -355,14 +346,6 @@
             // 
             // GuildTab
             // 
-            this.GuildTab.Controls.Add(this.AcceptInviteGuildTextbox);
-            this.GuildTab.Controls.Add(this.AcceptInviteGuildButton);
-            this.GuildTab.Controls.Add(this.CreateGuildTextbox);
-            this.GuildTab.Controls.Add(this.InvitePlayerGuildTextbox);
-            this.GuildTab.Controls.Add(this.InvitePlayerGuildButton);
-            this.GuildTab.Controls.Add(this.LeaveGuildButton);
-            this.GuildTab.Controls.Add(this.DisbandGuildButton);
-            this.GuildTab.Controls.Add(this.CreateGuildButton);
             this.GuildTab.Location = new System.Drawing.Point(4, 22);
             this.GuildTab.Name = "GuildTab";
             this.GuildTab.Padding = new System.Windows.Forms.Padding(3);
@@ -370,77 +353,6 @@
             this.GuildTab.TabIndex = 7;
             this.GuildTab.Text = "Guild";
             this.GuildTab.UseVisualStyleBackColor = true;
-            // 
-            // AcceptInviteGuildTextbox
-            // 
-            this.AcceptInviteGuildTextbox.Location = new System.Drawing.Point(104, 136);
-            this.AcceptInviteGuildTextbox.Name = "AcceptInviteGuildTextbox";
-            this.AcceptInviteGuildTextbox.Size = new System.Drawing.Size(100, 20);
-            this.AcceptInviteGuildTextbox.TabIndex = 7;
-            // 
-            // AcceptInviteGuildButton
-            // 
-            this.AcceptInviteGuildButton.Location = new System.Drawing.Point(8, 134);
-            this.AcceptInviteGuildButton.Name = "AcceptInviteGuildButton";
-            this.AcceptInviteGuildButton.Size = new System.Drawing.Size(89, 23);
-            this.AcceptInviteGuildButton.TabIndex = 6;
-            this.AcceptInviteGuildButton.Text = "Accept Invite";
-            this.AcceptInviteGuildButton.UseVisualStyleBackColor = true;
-            this.AcceptInviteGuildButton.Click += new System.EventHandler(this.AcceptInviteGuildButton_Click);
-            // 
-            // CreateGuildTextbox
-            // 
-            this.CreateGuildTextbox.Location = new System.Drawing.Point(104, 17);
-            this.CreateGuildTextbox.Name = "CreateGuildTextbox";
-            this.CreateGuildTextbox.Size = new System.Drawing.Size(100, 20);
-            this.CreateGuildTextbox.TabIndex = 5;
-            // 
-            // InvitePlayerGuildTextbox
-            // 
-            this.InvitePlayerGuildTextbox.Location = new System.Drawing.Point(103, 106);
-            this.InvitePlayerGuildTextbox.Name = "InvitePlayerGuildTextbox";
-            this.InvitePlayerGuildTextbox.Size = new System.Drawing.Size(100, 20);
-            this.InvitePlayerGuildTextbox.TabIndex = 4;
-            // 
-            // InvitePlayerGuildButton
-            // 
-            this.InvitePlayerGuildButton.Location = new System.Drawing.Point(8, 104);
-            this.InvitePlayerGuildButton.Name = "InvitePlayerGuildButton";
-            this.InvitePlayerGuildButton.Size = new System.Drawing.Size(89, 23);
-            this.InvitePlayerGuildButton.TabIndex = 3;
-            this.InvitePlayerGuildButton.Text = "Invite Player";
-            this.InvitePlayerGuildButton.UseVisualStyleBackColor = true;
-            this.InvitePlayerGuildButton.Click += new System.EventHandler(this.InvitePlayerGuildButton_Click);
-            // 
-            // LeaveGuildButton
-            // 
-            this.LeaveGuildButton.Location = new System.Drawing.Point(8, 74);
-            this.LeaveGuildButton.Name = "LeaveGuildButton";
-            this.LeaveGuildButton.Size = new System.Drawing.Size(89, 23);
-            this.LeaveGuildButton.TabIndex = 2;
-            this.LeaveGuildButton.Text = "Leave";
-            this.LeaveGuildButton.UseVisualStyleBackColor = true;
-            this.LeaveGuildButton.Click += new System.EventHandler(this.LeaveGuildButton_Click);
-            // 
-            // DisbandGuildButton
-            // 
-            this.DisbandGuildButton.Location = new System.Drawing.Point(8, 44);
-            this.DisbandGuildButton.Name = "DisbandGuildButton";
-            this.DisbandGuildButton.Size = new System.Drawing.Size(89, 23);
-            this.DisbandGuildButton.TabIndex = 1;
-            this.DisbandGuildButton.Text = "Disband";
-            this.DisbandGuildButton.UseVisualStyleBackColor = true;
-            this.DisbandGuildButton.Click += new System.EventHandler(this.DisbandGuildButton_Click);
-            // 
-            // CreateGuildButton
-            // 
-            this.CreateGuildButton.Location = new System.Drawing.Point(8, 15);
-            this.CreateGuildButton.Name = "CreateGuildButton";
-            this.CreateGuildButton.Size = new System.Drawing.Size(89, 23);
-            this.CreateGuildButton.TabIndex = 0;
-            this.CreateGuildButton.Text = "Create";
-            this.CreateGuildButton.UseVisualStyleBackColor = true;
-            this.CreateGuildButton.Click += new System.EventHandler(this.CreateGuildButton_Click);
             // 
             // MainForm
             // 
@@ -462,8 +374,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.AgiTrackBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ConTrackBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.StrTrackBar)).EndInit();
-            this.GuildTab.ResumeLayout(false);
-            this.GuildTab.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -495,14 +405,6 @@
         private System.Windows.Forms.TabPage BuyPetTab;
         private System.Windows.Forms.TabPage PetTab;
         private System.Windows.Forms.TabPage GuildTab;
-        private System.Windows.Forms.Button DisbandGuildButton;
-        private System.Windows.Forms.Button CreateGuildButton;
-        private System.Windows.Forms.TextBox InvitePlayerGuildTextbox;
-        private System.Windows.Forms.Button InvitePlayerGuildButton;
-        private System.Windows.Forms.Button LeaveGuildButton;
-        private System.Windows.Forms.TextBox CreateGuildTextbox;
-        private System.Windows.Forms.TextBox AcceptInviteGuildTextbox;
-        private System.Windows.Forms.Button AcceptInviteGuildButton;
         private System.Windows.Forms.TabPage EquipmentTab;
         private System.Windows.Forms.TextBox OtherTextBox;
         private System.Windows.Forms.RadioButton OtherRadioButton;

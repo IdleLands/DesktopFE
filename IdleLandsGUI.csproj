@@ -82,13 +82,16 @@
     <Compile Include="Model\Enums.cs" />
     <Compile Include="Model\EquipmentInfo.cs" />
     <Compile Include="Model\EventInfo.cs" />
-    <Compile Include="Model\FoundPetInfo.cs" />
-    <Compile Include="Model\PetConfigCacheInfo.cs" />
-    <Compile Include="Model\PetInfo.cs" />
-    <Compile Include="Model\PetOwnerInfo.cs" />
-    <Compile Include="Model\PetScaleInfo.cs" />
-    <Compile Include="Model\PetScaleUpgradeCostInfo.cs" />
-    <Compile Include="Model\PetScaleUpgradeInfo.cs" />
+    <Compile Include="Model\Guilds\GuildMemberCacheInfo.cs" />
+    <Compile Include="Model\Pets\FoundPetInfo.cs" />
+    <Compile Include="Model\Guilds\GuildInfo.cs" />
+    <Compile Include="Model\Guilds\GuildMemberInfo.cs" />
+    <Compile Include="Model\Pets\PetConfigCacheInfo.cs" />
+    <Compile Include="Model\Pets\PetInfo.cs" />
+    <Compile Include="Model\Pets\PetOwnerInfo.cs" />
+    <Compile Include="Model\Pets\PetScaleInfo.cs" />
+    <Compile Include="Model\Pets\PetScaleUpgradeCostInfo.cs" />
+    <Compile Include="Model\Pets\PetScaleUpgradeInfo.cs" />
     <Compile Include="Model\PlayerInfo.cs" />
     <Compile Include="Model\PriorityPointsInfo.cs" />
     <Compile Include="Model\StatCacheInfo.cs" />
@@ -99,6 +102,12 @@
     <Compile Include="Settings.cs" />
     <Compile Include="SystemTray\ContextMenu.cs" />
     <Compile Include="SystemTray\ProcessIcon.cs" />
+    <Compile Include="Tabs\GuildTabPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Tabs\GuildTabPage.Designer.cs">
+      <DependentUpon>GuildTabPage.cs</DependentUpon>
+    </Compile>
     <Compile Include="Tabs\PetTabPage.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -124,6 +133,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Tabs\GuildTabPage.resx">
+      <DependentUpon>GuildTabPage.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Tabs\PetTabPage.resx">
       <DependentUpon>PetTabPage.cs</DependentUpon>
     </EmbeddedResource>

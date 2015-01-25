@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using IdleLandsGUI.Model;
 using System.Reflection;
+using IdleLandsGUI.Model.Pets;
 
 namespace IdleLandsGUI.Tabs
 {

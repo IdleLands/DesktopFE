@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IdleLandsGUI.Model
+namespace IdleLandsGUI.Model.Pets
 {
     public class PetConfigCacheInfo
     {

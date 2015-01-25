@@ -1,5 +1,6 @@
 ﻿using IdleLandsGUI.CustomAttributes;
 using IdleLandsGUI.Model;
+using IdleLandsGUI.Model.Pets;
 using IdleLandsGUI.Properties;
 using IdleLandsGUI.Tabs;
 using Newtonsoft.Json;
@@ -43,6 +44,7 @@ namespace IdleLandsGUI
             };
 
             PetTab.Controls.Add(new PetTabPage(petResponse, comms));
+            GuildTab.Controls.Add(new GuildTabPage(response.player, response.guild, comms));
         }
 
         public void UpdatePlayer(PlayerInfo info)
@@ -278,40 +280,6 @@ namespace IdleLandsGUI
         {
             Type playerInfoType = info.GetType();
 
-            //static stuff
-            if (!info.guildStatus.HasValue || info.guildStatus == (int)Enums.GuildStatus.NotInAGuild)
-            {
-                CreateGuildButton.Enabled = true;
-                DisbandGuildButton.Enabled = false;
-                LeaveGuildButton.Enabled = false;
-                InvitePlayerGuildButton.Enabled = false;
-                AcceptInviteGuildButton.Enabled = true;
-            }
-            else if (info.guildStatus == (int)Enums.GuildStatus.RegularMember)
-            {
-                CreateGuildButton.Enabled = false;
-                DisbandGuildButton.Enabled = false;
-                LeaveGuildButton.Enabled = true;
-                InvitePlayerGuildButton.Enabled = false;
-                AcceptInviteGuildButton.Enabled = false;
-            }
-            else if (info.guildStatus == (int)Enums.GuildStatus.AdminMember)
-            {
-                CreateGuildButton.Enabled = false;
-                DisbandGuildButton.Enabled = false;
-                LeaveGuildButton.Enabled = true;
-                InvitePlayerGuildButton.Enabled = true;
-                AcceptInviteGuildButton.Enabled = false;
-            }
-            else if (info.guildStatus == (int)Enums.GuildStatus.Leader)
-            {
-                CreateGuildButton.Enabled = false;
-                DisbandGuildButton.Enabled = true;
-                LeaveGuildButton.Enabled = true;
-                InvitePlayerGuildButton.Enabled = true;
-                AcceptInviteGuildButton.Enabled = false;
-            }
-
             //dynamic stuff
             foreach (PropertyInfo propertyInfo in playerInfoType.GetProperties())
             {
@@ -516,6 +484,9 @@ namespace IdleLandsGUI
                         int x2 = 15, y2 = 0;
                         foreach (IdleLandsGUI.Model.EventInfo item in eventVal)
                         {
+                            if (string.IsNullOrEmpty(item._id))
+                                continue;
+
                             var labelSize = AddAutoSizeLabel(tab, x2, y2, "event_" + item._id, item.message);
                             y2 += labelSize.Height + 10;
                         }
@@ -673,91 +644,6 @@ namespace IdleLandsGUI
                     tempControl.Text += " (" + ((itemStat < 0) ? "-" : "+") + itemStat + "%)";
                 }
             }
-        }
-
-        private void CreateGuildButton_Click(object sender, EventArgs e)
-        {
-            CreateGuildButton.Enabled = false;
-            _comms.SendCreateGuild(CreateGuildTextbox.Text, () =>
-            {
-                CreateGuildButton.Enabled = true;
-                return true;
-            }, (string msg, int code) =>
-            {
-                MessageBox.Show(code + ": " + msg);
-                return true;
-            });
-        }
-
-        private void DisbandGuildButton_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show(this, "Really disband?", "Disband guild?",
-                MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.Cancel)
-            {
-                return;
-            }
-
-            DisbandGuildButton.Enabled = false;
-            _comms.SendDisbandGuild(() =>
-            {
-                DisbandGuildButton.Enabled = true;
-                return true;
-            }, (string msg, int code) =>
-            {
-                MessageBox.Show(code + ": " + msg);
-                return true;
-            });
-        }
-
-        private void LeaveGuildButton_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show(this, "Really leave?", "Leave guild?",
-                MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.Cancel)
-            {
-                return;
-            }
-
-            LeaveGuildButton.Enabled = false;
-            _comms.SendLeaveGuild(() =>
-            {
-                LeaveGuildButton.Enabled = true;
-                return true;
-            }, (string msg, int code) =>
-            {
-                MessageBox.Show(code + ": " + msg);
-                return true;
-            });
-        }
-
-        private void InvitePlayerGuildButton_Click(object sender, EventArgs e)
-        {
-            InvitePlayerGuildButton.Enabled = false;
-            _comms.SendInvitePlayerGuild(InvitePlayerGuildTextbox.Text,
-            () =>
-            {
-                InvitePlayerGuildButton.Enabled = true;
-                return true;
-            }, (string msg, int code) =>
-            {
-                MessageBox.Show(code + ": " + msg);
-                return true;
-            });
-        }
-
-        private void AcceptInviteGuildButton_Click(object sender, EventArgs e)
-        {
-            //AcceptInviteGuildButton.Name
-            AcceptInviteGuildButton.Enabled = false;
-            _comms.SendInviteManageGuild(true, AcceptInviteGuildTextbox.Text,
-            () =>
-            {
-                AcceptInviteGuildButton.Enabled = true;
-                return true;
-            }, (string msg, int code) =>
-            {
-                MessageBox.Show(code + ": " + msg);
-                return true;
-            });
         }
 
         private void OtherRadioButton_CheckedChanged(object sender, EventArgs e)

@@ -38,6 +38,8 @@
             this.LoginFailedLabel = new System.Windows.Forms.Label();
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.LogRequestsCheckbox = new System.Windows.Forms.CheckBox();
+            this.LogResponsesCheckbox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -136,11 +138,35 @@
             this.label3.TabIndex = 9;
             this.label3.Text = "Server:";
             // 
+            // LogRequestsCheckbox
+            // 
+            this.LogRequestsCheckbox.AutoSize = true;
+            this.LogRequestsCheckbox.Location = new System.Drawing.Point(398, 15);
+            this.LogRequestsCheckbox.Name = "LogRequestsCheckbox";
+            this.LogRequestsCheckbox.Size = new System.Drawing.Size(186, 17);
+            this.LogRequestsCheckbox.TabIndex = 10;
+            this.LogRequestsCheckbox.Text = "Log Requests (not recommended)";
+            this.LogRequestsCheckbox.UseVisualStyleBackColor = true;
+            this.LogRequestsCheckbox.CheckedChanged += new System.EventHandler(this.LogRequestsCheckbox_CheckedChanged);
+            // 
+            // LogResponsesCheckbox
+            // 
+            this.LogResponsesCheckbox.AutoSize = true;
+            this.LogResponsesCheckbox.Location = new System.Drawing.Point(398, 39);
+            this.LogResponsesCheckbox.Name = "LogResponsesCheckbox";
+            this.LogResponsesCheckbox.Size = new System.Drawing.Size(100, 17);
+            this.LogResponsesCheckbox.TabIndex = 11;
+            this.LogResponsesCheckbox.Text = "Log Responses";
+            this.LogResponsesCheckbox.UseVisualStyleBackColor = true;
+            this.LogResponsesCheckbox.CheckedChanged += new System.EventHandler(this.LogResponsesCheckbox_CheckedChanged);
+            // 
             // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(624, 442);
+            this.Controls.Add(this.LogResponsesCheckbox);
+            this.Controls.Add(this.LogRequestsCheckbox);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.ServerComboBox);
             this.Controls.Add(this.LoginFailedLabel);
@@ -170,6 +196,8 @@
         private System.Windows.Forms.Label LoginFailedLabel;
         private System.Windows.Forms.ComboBox ServerComboBox;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox LogRequestsCheckbox;
+        private System.Windows.Forms.CheckBox LogResponsesCheckbox;
     }
 }
 

@@ -1,4 +1,5 @@
 ﻿using IdleLandsGUI.CustomAttributes;
+using IdleLandsGUI.Model.Pets;
 using RestSharp.Deserializers;
 using System;
 using System.Collections.Generic;
@@ -68,5 +69,6 @@ namespace IdleLandsGUI.Model
         public string foundPets { get; set; }
         //Restsharp doesn't support dictionaries, see https://github.com/restsharp/RestSharp/issues/607
         public List<FoundPetInfo> workaroundPets { get; set; }
+        public int guildTax { get; set; }
     }
 }

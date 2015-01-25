@@ -1,4 +1,7 @@
 ﻿using IdleLandsGUI.Model;
+using IdleLandsGUI.Model.Guilds;
+using IdleLandsGUI.Model.Pets;
+using Newtonsoft.Json;
 using RestSharp;
 using RestSharp.Deserializers;
 using System;
@@ -32,11 +35,12 @@ namespace IdleLandsGUI
         {
             _playerUpdateDelegates = new List<PlayerUpdate>();
             _petUpdateDelegates = new List<PetUpdate>();
+            _guildUpdateDelegates = new List<GuildUpdate>();
             _timeSinceLastTurn = new Stopwatch();
             _loggedIn = false;
-            AppSettings appsett = new AppSettings();
-            _logResponses = appsett.LogResponses;
-            _logRequests = appsett.LogRequests;
+            AppSettings apps = new AppSettings();
+            _logResponses = apps.LogResponses;
+            _logRequests = apps.LogRequests;
         }
 
         //Public functions, mostly Async
@@ -44,6 +48,12 @@ namespace IdleLandsGUI
         public void SetServer(string server)
         {
             _serverAddress = server;
+        }
+
+        public void SetAppSettings(AppSettings apps)
+        {
+            _logResponses = apps.LogResponses;
+            _logRequests = apps.LogRequests;
         }
 
         // Main actions, exempt from CompleteRequest() except for SendTurn()
@@ -484,6 +494,46 @@ namespace IdleLandsGUI
             }, doOnComplete, doOnFailure);
         }
 
+        public async void SendSetTaxGuild(int taxPercent, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
+        {
+            var request = new RestRequest("/guild/manage/tax", Method.POST);
+            request.AddParameter("identifier", GetIdentifier());
+            request.AddParameter("taxPercent", taxPercent);
+            request.AddParameter("token", _token);
+
+            LogRequest(request);
+
+            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
+
+            LogResponse(response);
+
+            CompleteRequest(response, () =>
+            {
+                SendSetTaxGuild(taxPercent, doOnComplete, doOnFailure);
+                return true;
+            }, doOnComplete, doOnFailure);
+        }
+
+        public async void SendSetTaxPlayer(int taxPercent, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
+        {
+            var request = new RestRequest("/player/manage/tax", Method.POST);
+            request.AddParameter("identifier", GetIdentifier());
+            request.AddParameter("taxPercent", taxPercent);
+            request.AddParameter("token", _token);
+
+            LogRequest(request);
+
+            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
+
+            LogResponse(response);
+
+            CompleteRequest(response, () =>
+            {
+                SendSetTaxPlayer(taxPercent, doOnComplete, doOnFailure);
+                return true;
+            }, doOnComplete, doOnFailure);
+        }
+
         public async void SendBuyPet(string type, string name, List<String> attrs, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
         {
             var request = new RestRequest("/pet/buy", Method.PUT);
@@ -781,6 +831,10 @@ namespace IdleLandsGUI
                     pets = actionResponse.Data.pets
                 };
                 SendPetUpdate(tempPetResponse);
+                if(actionResponse.Data.guild != null)
+                {
+                    SendGuildUpdate(actionResponse.Data.guild);
+                }
             }
 
             IRestResponse<PetResponse> petResponse = response as IRestResponse<PetResponse>;
@@ -796,13 +850,13 @@ namespace IdleLandsGUI
         private void LogRequest(RestRequest request, [CallerMemberName]string memberName = "")
         {
             if (_logRequests)
-                System.IO.File.AppendAllText("requests.txt", "\r\n\r\n!!!" + memberName + "!!!\r\n\r\n" + request.JsonSerializer.Serialize(request));
+                System.IO.File.AppendAllText("requests.txt", "\r\n\r\n!!!" + memberName + " @ " + DateTime.Now.ToString() + "!!!\r\n\r\n" + JsonConvert.SerializeObject(request));
         }
 
         private void LogResponse(IRestResponse response, [CallerMemberName]string memberName = "")
         {
             if (_logResponses)
-                System.IO.File.AppendAllText("responses.txt", "\r\n\r\n!!!" + memberName + "!!!\r\n\r\n" + response.Content);
+                System.IO.File.AppendAllText("responses.txt", "\r\n\r\n!!!" + memberName + " @ " + DateTime.Now.ToString() + "!!!\r\n\r\n" + response.Content);
         }
 
         private bool EnsureLoggedIn<T>(IRestResponse<T> response, Func<bool> onSuccess) where T : BaseResponse
@@ -869,6 +923,7 @@ namespace IdleLandsGUI
             public PlayerInfo player { get; set; }
             public PetInfo pet { get; set; }
             public List<PetInfo> pets { get; set; }
+            public GuildInfo guild { get; set; }
         }
 
         public class PetResponse : BaseResponse
@@ -881,10 +936,12 @@ namespace IdleLandsGUI
         //Delegate definitions
         public delegate void PlayerUpdate(PlayerInfo player);
         public delegate void PetUpdate(PetResponse player);
+        public delegate void GuildUpdate(GuildInfo guild);
 
         //Actual Delegates
         private List<PlayerUpdate> _playerUpdateDelegates { get; set; }
         private List<PetUpdate> _petUpdateDelegates { get; set; }
+        private List<GuildUpdate> _guildUpdateDelegates { get; set; }
         
         private void SendPlayerUpdate(PlayerInfo info)
         {
@@ -902,14 +959,17 @@ namespace IdleLandsGUI
             }
         }
 
+        private void SendGuildUpdate(GuildInfo info)
+        {
+            foreach (var dele in _guildUpdateDelegates)
+            {
+                dele(info);
+            }
+        }
+
         public void AddPlayerUpdateDelegate(PlayerUpdate updateDelegate)
         {
             _playerUpdateDelegates.Add(updateDelegate);
-        }
-
-        public void RemovePlayerUpdateDelegate(PlayerUpdate updateDelegate)
-        {
-            _playerUpdateDelegates.Remove(updateDelegate);
         }
 
         public void AddPetUpdateDelegate(PetUpdate updateDelegate)
@@ -917,9 +977,24 @@ namespace IdleLandsGUI
             _petUpdateDelegates.Add(updateDelegate);
         }
 
+        public void AddGuildUpdateDelegate(GuildUpdate updateDelegate)
+        {
+            _guildUpdateDelegates.Add(updateDelegate);
+        }
+
+        public void RemovePlayerUpdateDelegate(PlayerUpdate updateDelegate)
+        {
+            _playerUpdateDelegates.Remove(updateDelegate);
+        }
+
         public void RemovePetUpdateDelegate(PetUpdate updateDelegate)
         {
             _petUpdateDelegates.Remove(updateDelegate);
+        }
+
+        public void RemoveGuildUpdateDelegate(GuildUpdate updateDelegate)
+        {
+            _guildUpdateDelegates.Remove(updateDelegate);
         }
     }
 }
