@@ -26,9 +26,9 @@ namespace IdleLandsGUI.Model.Pets
         public bool isMonster { get; set; }
         public bool isPet { get; set; }
         public bool isActive { get; set; }
-        public bool smartSell { get; set; }
-        public bool smartEquip { get; set; }
-        public bool smartSelf { get; set; }
+        public string smartSell { get; set; }
+        public string smartEquip { get; set; }
+        public string smartSelf { get; set; }
         public List<EquipmentInfo> inventory { get; set; }
         public PetScaleInfo scaleLevel { get; set; }
         public ulong lastInteraction { get; set; }

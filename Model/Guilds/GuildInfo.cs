@@ -11,12 +11,14 @@ namespace IdleLandsGUI.Model.Guilds
         public string name { get; set; }
         public string leader { get; set; }
         public string createDate { get; set; }
-        public string invites { get; set; }
+        public List<string> invites { get; set; }
         public string leaderName { get; set; }
         public int level { get; set; }
         public int invitesAvailable { get; set; }
         public int taxPercent { get; set; }
         public string buffs { get; set; }
+        public StatInfo gold { get; set; }
+        public string @base { get; set;}
         public List<GuildMemberInfo> members { get; set; }
     }
 }

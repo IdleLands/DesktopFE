@@ -15,21 +15,82 @@ namespace IdleLandsGUI.Tabs
     public partial class GuildTabPage : UserControl
     {
         private IdleLandsComms _comms { get; set; }
+        private string _selectedMember { get; set; }
+        private string _selectedInvitee { get; set; }
+        private Enums.GuildStatus _guildStatus { get; set; }
 
-        public GuildTabPage(PlayerInfo playerInfo, GuildInfo guildInfo, IdleLandsComms comms)
+        public GuildTabPage(PlayerInfo playerInfo, GuildInfo guildInfo, List<string> guildInvites, IdleLandsComms comms)
         {
             InitializeComponent();
             Anchor = (AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
             _comms = comms;
             _comms.AddPlayerUpdateDelegate(UpdatePlayerInfo);
             _comms.AddGuildUpdateDelegate(UpdateGuildInfo);
+            _comms.AddGuildInvitesUpdateDelegate(UpdateGuildInvitesInfo);
+
+            KickPlayerButton.Enabled = false;
+            PromotePlayerButton.Enabled = false;
+            DemotePlayerButton.Enabled = false;
+
             UpdatePlayerInfo(playerInfo);
             UpdateGuildInfo(guildInfo);
+            UpdateGuildInvitesInfo(guildInvites);
+        }
+
+        private void UpdateGuildInvitesInfo(List<string> guildInvites)
+        {
+            if (guildInvites == null)
+                return;
+
+            List<ListboxRow> membersData = new List<ListboxRow>();
+
+            foreach (var member in guildInvites)
+            {
+                string name = member;
+                if (name.IndexOf('#') != -1)
+                    name = name.Substring(name.IndexOf('#') + 1);
+                membersData.Add(new ListboxRow { Text = name, Value = member });
+            }
+
+            PersonalInvitesListbox.DisplayMember = "Text";
+            PersonalInvitesListbox.DataSource = membersData;
         }
 
         private void UpdateGuildInfo(GuildInfo info)
         {
+            if (info == null)
+                return;
+
             GuildTaxNumeric.Value = info.taxPercent;
+            List<ListboxRow> membersData = new List<ListboxRow>();
+
+            foreach(var member in info.members)
+            {
+                string name = member.name + (member.isAdmin ? " (admin)" : "");
+                membersData.Add(new ListboxRow { Text = name, Value = member.name });
+            }
+
+            MembersListbox.DisplayMember = "Text";
+            MembersListbox.DataSource = membersData;
+
+            List<ListboxRow> invitesData = new List<ListboxRow>();
+
+            foreach(var ident in info.invites)
+            {
+                string name = ident;
+                if (name.IndexOf('#') != -1)
+                    name = name.Substring(name.IndexOf('#') + 1);
+
+                invitesData.Add(new ListboxRow { Text = name, Value = ident });
+            }
+
+            InvitesListbox.DisplayMember = "Text";
+            InvitesListbox.DataSource = invitesData;
+
+            GuildInfoNameLabel.Text = "Guild Name: " + info.name;
+            GuildInfoGoldLabel.Text = "Guild Gold: " + info.gold.__current;
+            GuildInfoInvitesLabel.Text = "Guild Invites Remaining: " + info.invitesAvailable;
+            GuildInfoLevelLabel.Text = "Guild Level: " + info.level;
         }
 
         private void UpdatePlayerInfo(PlayerInfo info)
@@ -44,6 +105,8 @@ namespace IdleLandsGUI.Tabs
                 AcceptInviteGuildButton.Enabled = true;
                 SetGuildTaxButton.Enabled = false;
                 SetPersonalTaxButton.Enabled = false;
+
+                _guildStatus = Enums.GuildStatus.NotInAGuild;
             }
             else if (info.guildStatus == (int)Enums.GuildStatus.RegularMember)
             {
@@ -54,6 +117,8 @@ namespace IdleLandsGUI.Tabs
                 AcceptInviteGuildButton.Enabled = false;
                 SetGuildTaxButton.Enabled = false;
                 SetPersonalTaxButton.Enabled = true;
+
+                _guildStatus = Enums.GuildStatus.RegularMember;
             }
             else if (info.guildStatus == (int)Enums.GuildStatus.AdminMember)
             {
@@ -64,6 +129,8 @@ namespace IdleLandsGUI.Tabs
                 AcceptInviteGuildButton.Enabled = false;
                 SetGuildTaxButton.Enabled = false;
                 SetPersonalTaxButton.Enabled = true;
+
+                _guildStatus = Enums.GuildStatus.AdminMember;
             }
             else if (info.guildStatus == (int)Enums.GuildStatus.Leader)
             {
@@ -74,9 +141,12 @@ namespace IdleLandsGUI.Tabs
                 AcceptInviteGuildButton.Enabled = false;
                 SetGuildTaxButton.Enabled = true;
                 SetPersonalTaxButton.Enabled = true;
+
+                _guildStatus = Enums.GuildStatus.Leader;
             }
 
             PersonalTaxNumeric.Value = info.guildTax;
+            DonateNumeric.Maximum = info.gold.__current;
         }
 
         private void CreateGuildButton_Click(object sender, EventArgs e)
@@ -105,6 +175,8 @@ namespace IdleLandsGUI.Tabs
             _comms.SendDisbandGuild(() =>
             {
                 DisbandGuildButton.Enabled = true;
+                MembersListbox.DataSource = new List<ListboxRow>();
+                InvitesListbox.DataSource = new List<ListboxRow>();
                 return true;
             }, (string msg, int code) =>
             {
@@ -125,6 +197,8 @@ namespace IdleLandsGUI.Tabs
             _comms.SendLeaveGuild(() =>
             {
                 LeaveGuildButton.Enabled = true;
+                MembersListbox.DataSource = new List<ListboxRow>();
+                InvitesListbox.DataSource = new List<ListboxRow>();
                 return true;
             }, (string msg, int code) =>
             {
@@ -150,12 +224,26 @@ namespace IdleLandsGUI.Tabs
 
         private void AcceptInviteGuildButton_Click(object sender, EventArgs e)
         {
-            //AcceptInviteGuildButton.Name
             AcceptInviteGuildButton.Enabled = false;
-            _comms.SendInviteManageGuild(true, AcceptInviteGuildTextbox.Text,
+            _comms.SendInviteManageGuild(true, _selectedInvitee,
             () =>
             {
                 AcceptInviteGuildButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void DeclineInviteGuildButton_Click(object sender, EventArgs e)
+        {
+            DeclineInviteGuildButton.Enabled = false;
+            _comms.SendInviteManageGuild(false, _selectedInvitee,
+            () =>
+            {
+                DeclineInviteGuildButton.Enabled = true;
                 return true;
             }, (string msg, int code) =>
             {
@@ -192,6 +280,149 @@ namespace IdleLandsGUI.Tabs
                 MessageBox.Show(code + ": " + msg);
                 return true;
             });
+        }
+
+        private void KickPlayerButton_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_selectedMember))
+                return;
+
+            if (MessageBox.Show(this, "Really kick " + _selectedMember + "?", "Kick player?",
+                MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            KickPlayerButton.Enabled = false;
+            _comms.SendKickGuild(_selectedMember,
+            () =>
+            {
+                KickPlayerButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void PromotePlayerButton_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_selectedMember))
+                return;
+
+            PromotePlayerButton.Enabled = false;
+            _comms.SendPromoteGuild(_selectedMember,
+            () =>
+            {
+                PromotePlayerButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void DemotePlayerButton_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(_selectedMember))
+                return;
+
+            DemotePlayerButton.Enabled = false;
+            _comms.SendDemoteGuild(_selectedMember,
+            () =>
+            {
+                DemotePlayerButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void DonateButton_Click(object sender, EventArgs e)
+        {
+            DonateButton.Enabled = false;
+            _comms.SendDonateGuild((int)DonateNumeric.Value,
+            () =>
+            {
+                DonateButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void ConstructBuildingButton_Click(object sender, EventArgs e)
+        {
+            ConstructBuildingTextbox.Enabled = false;
+            _comms.SendConstructBuildingGuild(ConstructBuildingTextbox.Text, (int)ConstructBuildingSlotNumeric.Value,
+            () =>
+            {
+                ConstructBuildingTextbox.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void UpgradeBuildingButton_Click(object sender, EventArgs e)
+        {
+            UpgradeBuildingButton.Enabled = false;
+            _comms.SendUpgradeBuildingGuild(UpgradeBuildingTextbox.Text,
+            () =>
+            {
+                UpgradeBuildingButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void MoveGuildButton_Click(object sender, EventArgs e)
+        {
+            MoveGuildButton.Enabled = false;
+            _comms.SendMoveGuild(MoveGuildTextbox.Text,
+            () =>
+            {
+                MoveGuildButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void PersonalInvitesListbox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _selectedInvitee = (PersonalInvitesListbox.SelectedItem as ListboxRow).Value;
+        }
+
+        private void MembersListbox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _selectedMember = (MembersListbox.SelectedItem as ListboxRow).Value;
+
+            if(_guildStatus == Enums.GuildStatus.AdminMember || _guildStatus == Enums.GuildStatus.Leader)
+            {
+                KickPlayerButton.Enabled = true;
+                PromotePlayerButton.Enabled = true;
+                DemotePlayerButton.Enabled = true;
+            }
+        }
+
+        private class ListboxRow
+        {
+            public string Text { get; set; }
+            public string Value { get; set; }
         }
     }
 }

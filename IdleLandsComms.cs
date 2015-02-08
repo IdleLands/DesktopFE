@@ -36,6 +36,7 @@ namespace IdleLandsGUI
             _playerUpdateDelegates = new List<PlayerUpdate>();
             _petUpdateDelegates = new List<PetUpdate>();
             _guildUpdateDelegates = new List<GuildUpdate>();
+            _guildInvitesUpdateDelegates = new List<GuildInvitesUpdate>();
             _timeSinceLastTurn = new Stopwatch();
             _loggedIn = false;
             AppSettings apps = new AppSettings();
@@ -344,7 +345,7 @@ namespace IdleLandsGUI
 
             LogRequest(request);
 
-            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
             LogResponse(response);
 
@@ -363,7 +364,7 @@ namespace IdleLandsGUI
 
             LogRequest(request);
 
-            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
             LogResponse(response);
 
@@ -382,7 +383,7 @@ namespace IdleLandsGUI
 
             LogRequest(request);
 
-            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
             LogResponse(response);
 
@@ -402,7 +403,7 @@ namespace IdleLandsGUI
 
             LogRequest(request);
 
-            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
             LogResponse(response);
 
@@ -423,7 +424,7 @@ namespace IdleLandsGUI
 
             LogRequest(request);
 
-            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
             LogResponse(response);
 
@@ -436,14 +437,14 @@ namespace IdleLandsGUI
 
         public async void SendPromoteGuild(string memberName, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
         {
-            var request = new RestRequest("/guild/invite/promote", Method.POST);
+            var request = new RestRequest("/guild/manage/promote", Method.POST);
             request.AddParameter("identifier", GetIdentifier());
             request.AddParameter("memberName", memberName);
             request.AddParameter("token", _token);
 
             LogRequest(request);
 
-            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
             LogResponse(response);
 
@@ -456,14 +457,14 @@ namespace IdleLandsGUI
 
         public async void SendDemoteGuild(string memberName, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
         {
-            var request = new RestRequest("/guild/invite/demote", Method.POST);
+            var request = new RestRequest("/guild/manage/demote", Method.POST);
             request.AddParameter("identifier", GetIdentifier());
             request.AddParameter("memberName", memberName);
             request.AddParameter("token", _token);
 
             LogRequest(request);
 
-            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
             LogResponse(response);
 
@@ -476,14 +477,14 @@ namespace IdleLandsGUI
 
         public async void SendKickGuild(string memberName, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
         {
-            var request = new RestRequest("/guild/invite/kick", Method.POST);
+            var request = new RestRequest("/guild/manage/kick", Method.POST);
             request.AddParameter("identifier", GetIdentifier());
             request.AddParameter("memberName", memberName);
             request.AddParameter("token", _token);
 
             LogRequest(request);
 
-            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
             LogResponse(response);
 
@@ -503,7 +504,7 @@ namespace IdleLandsGUI
 
             LogRequest(request);
 
-            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
             LogResponse(response);
 
@@ -523,13 +524,94 @@ namespace IdleLandsGUI
 
             LogRequest(request);
 
-            var response = await GetClient().ExecuteTaskAsync<BaseResponse>(request);
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
 
             LogResponse(response);
 
             CompleteRequest(response, () =>
             {
                 SendSetTaxPlayer(taxPercent, doOnComplete, doOnFailure);
+                return true;
+            }, doOnComplete, doOnFailure);
+        }
+
+        public async void SendDonateGuild(int gold, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
+        {
+            var request = new RestRequest("/guild/manage/donate", Method.POST);
+            request.AddParameter("identifier", GetIdentifier());
+            request.AddParameter("gold", gold);
+            request.AddParameter("token", _token);
+
+            LogRequest(request);
+
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
+
+            LogResponse(response);
+
+            CompleteRequest(response, () =>
+            {
+                SendDonateGuild(gold, doOnComplete, doOnFailure);
+                return true;
+            }, doOnComplete, doOnFailure);
+        }
+
+        public async void SendConstructBuildingGuild(string building, int slot, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
+        {
+            var request = new RestRequest("/guild/building/construct", Method.PUT);
+            request.AddParameter("identifier", GetIdentifier());
+            request.AddParameter("building", building);
+            request.AddParameter("slot", slot);
+            request.AddParameter("token", _token);
+
+            LogRequest(request);
+
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
+
+            LogResponse(response);
+
+            CompleteRequest(response, () =>
+            {
+                SendConstructBuildingGuild(building, slot, doOnComplete, doOnFailure);
+                return true;
+            }, doOnComplete, doOnFailure);
+        }
+
+        public async void SendUpgradeBuildingGuild(string building, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
+        {
+            var request = new RestRequest("/guild/building/upgrade", Method.POST);
+            request.AddParameter("identifier", GetIdentifier());
+            request.AddParameter("building", building);
+            request.AddParameter("token", _token);
+
+            LogRequest(request);
+
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
+
+            LogResponse(response);
+
+            CompleteRequest(response, () =>
+            {
+                SendUpgradeBuildingGuild(building, doOnComplete, doOnFailure);
+                return true;
+            }, doOnComplete, doOnFailure);
+        }
+
+        public async void SendMoveGuild(string newLoc, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
+        {
+            var request = new RestRequest("/guild/move", Method.PUT);
+            request.AddParameter("identifier", GetIdentifier());
+            request.AddParameter("newLoc", newLoc);
+            request.AddParameter("token", _token);
+
+            LogRequest(request);
+
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
+
+            LogResponse(response);
+
+            CompleteRequest(response, () =>
+            {
+                SendMoveGuild(newLoc, doOnComplete, doOnFailure);
                 return true;
             }, doOnComplete, doOnFailure);
         }
@@ -825,15 +907,22 @@ namespace IdleLandsGUI
             if (actionResponse != null && actionResponse.Data != null && actionResponse.Data.player != null)
             {
                 SendPlayerUpdate(actionResponse.Data.player);
+
                 PetResponse tempPetResponse = new PetResponse
                 {
                     pet = actionResponse.Data.pet,
                     pets = actionResponse.Data.pets
                 };
                 SendPetUpdate(tempPetResponse);
+
                 if(actionResponse.Data.guild != null)
                 {
                     SendGuildUpdate(actionResponse.Data.guild);
+                }
+
+                if(actionResponse.Data.guildInvites != null)
+                {
+                    SendGuildInvitesUpdate(actionResponse.Data.guildInvites);
                 }
             }
 
@@ -924,6 +1013,7 @@ namespace IdleLandsGUI
             public PetInfo pet { get; set; }
             public List<PetInfo> pets { get; set; }
             public GuildInfo guild { get; set; }
+            public List<string> guildInvites { get; set; }
         }
 
         public class PetResponse : BaseResponse
@@ -937,11 +1027,13 @@ namespace IdleLandsGUI
         public delegate void PlayerUpdate(PlayerInfo player);
         public delegate void PetUpdate(PetResponse player);
         public delegate void GuildUpdate(GuildInfo guild);
+        public delegate void GuildInvitesUpdate(List<string> guildInvites);
 
         //Actual Delegates
         private List<PlayerUpdate> _playerUpdateDelegates { get; set; }
         private List<PetUpdate> _petUpdateDelegates { get; set; }
         private List<GuildUpdate> _guildUpdateDelegates { get; set; }
+        private List<GuildInvitesUpdate> _guildInvitesUpdateDelegates { get; set; }
         
         private void SendPlayerUpdate(PlayerInfo info)
         {
@@ -967,6 +1059,14 @@ namespace IdleLandsGUI
             }
         }
 
+        private void SendGuildInvitesUpdate(List<string> guildInvites)
+        {
+            foreach (var dele in _guildInvitesUpdateDelegates)
+            {
+                dele(guildInvites);
+            }
+        }
+
         public void AddPlayerUpdateDelegate(PlayerUpdate updateDelegate)
         {
             _playerUpdateDelegates.Add(updateDelegate);
@@ -982,6 +1082,11 @@ namespace IdleLandsGUI
             _guildUpdateDelegates.Add(updateDelegate);
         }
 
+        public void AddGuildInvitesUpdateDelegate(GuildInvitesUpdate updateDelegate)
+        {
+            _guildInvitesUpdateDelegates.Add(updateDelegate);
+        }
+
         public void RemovePlayerUpdateDelegate(PlayerUpdate updateDelegate)
         {
             _playerUpdateDelegates.Remove(updateDelegate);
@@ -995,6 +1100,11 @@ namespace IdleLandsGUI
         public void RemoveGuildUpdateDelegate(GuildUpdate updateDelegate)
         {
             _guildUpdateDelegates.Remove(updateDelegate);
+        }
+
+        public void RemoveGuildInvitesUpdateDelegate(GuildInvitesUpdate updateDelegate)
+        {
+            _guildInvitesUpdateDelegates.Remove(updateDelegate);
         }
     }
 }

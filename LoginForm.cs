@@ -31,7 +31,10 @@ namespace IdleLandsGUI
                 if (index >= 0)
                     ServerComboBox.SelectedIndex = index;
                 else
-                    ServerComboBox.SelectedIndex = 1;
+                {
+                    ServerComboBox.Items.Add(apps.Server);
+                    ServerComboBox.SelectedIndex = ServerComboBox.Items.Count - 1;
+                }
             }
             else
                 ServerComboBox.SelectedIndex = 1;

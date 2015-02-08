@@ -37,6 +37,7 @@ namespace IdleLandsGUI.Tabs
             TakeItemButton.Enabled = false;
             EquipItemButton.Enabled = false;
             UnequipItemButton.Enabled = false;
+            ChangeClassButton.Enabled = false;
 
             UpdatePetInfo(response);
             if(response.pets != null && response.pets.Any())
@@ -53,11 +54,15 @@ namespace IdleLandsGUI.Tabs
             if (response.pet != null)
             {
                 _activePet = response.pet;
+                SmartSelfButton.Text = "Smart Self: " + (_activePet.smartSelf == "on" ? "ON" : "OFF");
+                SmartEquipButton.Text = "Smart Equip: " + (_activePet.smartEquip == "on" ? "ON" : "OFF");
+                SmartSellButton.Text = "Smart Sell: " + (_activePet.smartSell == "on" ? "ON" : "OFF");
                 if (_selectedPet != null && _activePet.createdAt == _selectedPet.createdAt)
                 {
                     _selectedPet = _activePet;
                     UpdateSelectedPetStats(_selectedPet);
                 }
+                ChangeClassButton.Enabled = true;
             }
 
             if (response.pets != null)
@@ -67,7 +72,7 @@ namespace IdleLandsGUI.Tabs
 
                 foreach (var pet in response.pets)
                 {
-                    if (pet.name == response.pet.name)
+                    if (response.pet != null && pet.name == response.pet.name)
                     {
                         PetListbox.Items.Add(pet.name + " (Active)");
                     }
@@ -206,20 +211,21 @@ namespace IdleLandsGUI.Tabs
                         {
                             if (propertyInfo2.Name == _selectedSkill)
                             {
+                                PetSkillCurrentNameLabel.Text = "Current Name: " + _selectedSkill;
                                 IEnumerable<int> intListVal = propertyInfo2.GetValue(_selectedPet._configCache.scale) as List<int>;
                                 IEnumerable<float> floatListVal = propertyInfo2.GetValue(_selectedPet._configCache.scale) as List<float>;
 
                                 if (intListVal != null)
                                 {
                                     intListVal = intListVal.OrderBy(x => x);
-                                    PetSkillCurrentValueLabel.Text = "Current value: " + intListVal.ElementAt(level);
-                                    PetSkillPossibleValuesLabel.Text = "Possible values: [" + String.Join(",", intListVal) + "]";
+                                    PetSkillCurrentValueLabel.Text = "Current Value: " + intListVal.ElementAt(level);
+                                    PetSkillPossibleValuesLabel.Text = "Possible Values: [" + String.Join(",", intListVal) + "]";
                                 }
                                 else
                                 {
                                     floatListVal = floatListVal.OrderBy(x => x);
-                                    PetSkillCurrentValueLabel.Text = "Current value: " + floatListVal.ElementAt(level);
-                                    PetSkillPossibleValuesLabel.Text = "Possible values: [" + String.Join(",", floatListVal) + "]";
+                                    PetSkillCurrentValueLabel.Text = "Current Value: " + floatListVal.ElementAt(level);
+                                    PetSkillPossibleValuesLabel.Text = "Possible Values: [" + String.Join(",", floatListVal) + "]";
                                 }
                             }
                         }
@@ -385,6 +391,77 @@ namespace IdleLandsGUI.Tabs
                     return true;
                 });
             }
+        }
+
+        private void ChangeClassButton_Click(object sender, EventArgs e)
+        {
+            if(string.IsNullOrEmpty(ChangeClassTextbox.Text))
+            {
+                MessageBox.Show("Can't change class to empty!");
+                return;
+            }
+
+            ChangeClassButton.Enabled = false;
+            _comms.SendChangeClassPet(ChangeClassTextbox.Text, () =>
+            {
+                ChangeClassButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void SmartSelfButton_Click(object sender, EventArgs e)
+        {
+            if (_activePet == null)
+                return;
+
+            SmartSelfButton.Enabled = false;
+            _comms.SendSmartPet("smartSelf", _activePet.smartSelf == "on" ? "off" : "on", () =>
+            {
+                SmartSelfButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void SmartEquipButton_Click(object sender, EventArgs e)
+        {
+            if (_activePet == null)
+                return;
+
+            SmartEquipButton.Enabled = false;
+            _comms.SendSmartPet("smartEquip", _activePet.smartEquip == "on" ? "off" : "on", () =>
+            {
+                SmartEquipButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void SmartSellButton_Click(object sender, EventArgs e)
+        {
+            if (_activePet == null)
+                return;
+
+            SmartSellButton.Enabled = false;
+            _comms.SendSmartPet("smartSell", _activePet.smartSell == "on" ? "off" : "on", () =>
+            {
+                SmartSellButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
         }
 
         private class ListboxData

@@ -44,7 +44,7 @@ namespace IdleLandsGUI
             };
 
             PetTab.Controls.Add(new PetTabPage(petResponse, comms));
-            GuildTab.Controls.Add(new GuildTabPage(response.player, response.guild, comms));
+            GuildTab.Controls.Add(new GuildTabPage(response.player, response.guild, response.guildInvites, comms));
         }
 
         public void UpdatePlayer(PlayerInfo info)

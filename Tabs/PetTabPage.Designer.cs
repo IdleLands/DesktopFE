@@ -54,6 +54,12 @@
             this.TakeItemButton = new System.Windows.Forms.Button();
             this.EquipItemButton = new System.Windows.Forms.Button();
             this.UnequipItemButton = new System.Windows.Forms.Button();
+            this.ChangeClassButton = new System.Windows.Forms.Button();
+            this.ChangeClassTextbox = new System.Windows.Forms.TextBox();
+            this.SmartSelfButton = new System.Windows.Forms.Button();
+            this.SmartEquipButton = new System.Windows.Forms.Button();
+            this.SmartSellButton = new System.Windows.Forms.Button();
+            this.PetSkillCurrentNameLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // PetListbox
@@ -175,9 +181,9 @@
             // 
             // ActivatePetButton
             // 
-            this.ActivatePetButton.Location = new System.Drawing.Point(652, 11);
+            this.ActivatePetButton.Location = new System.Drawing.Point(636, 11);
             this.ActivatePetButton.Name = "ActivatePetButton";
-            this.ActivatePetButton.Size = new System.Drawing.Size(85, 23);
+            this.ActivatePetButton.Size = new System.Drawing.Size(101, 23);
             this.ActivatePetButton.TabIndex = 15;
             this.ActivatePetButton.Text = "Activate Pet";
             this.ActivatePetButton.UseVisualStyleBackColor = true;
@@ -204,7 +210,7 @@
             // PetSkillCurrentValueLabel
             // 
             this.PetSkillCurrentValueLabel.AutoSize = true;
-            this.PetSkillCurrentValueLabel.Location = new System.Drawing.Point(258, 192);
+            this.PetSkillCurrentValueLabel.Location = new System.Drawing.Point(258, 203);
             this.PetSkillCurrentValueLabel.Name = "PetSkillCurrentValueLabel";
             this.PetSkillCurrentValueLabel.Size = new System.Drawing.Size(71, 13);
             this.PetSkillCurrentValueLabel.TabIndex = 18;
@@ -213,7 +219,7 @@
             // PetSkillPossibleValuesLabel
             // 
             this.PetSkillPossibleValuesLabel.AutoSize = true;
-            this.PetSkillPossibleValuesLabel.Location = new System.Drawing.Point(258, 205);
+            this.PetSkillPossibleValuesLabel.Location = new System.Drawing.Point(258, 216);
             this.PetSkillPossibleValuesLabel.Name = "PetSkillPossibleValuesLabel";
             this.PetSkillPossibleValuesLabel.Size = new System.Drawing.Size(81, 13);
             this.PetSkillPossibleValuesLabel.TabIndex = 19;
@@ -222,7 +228,7 @@
             // PetSkillUpgradeCostLabel
             // 
             this.PetSkillUpgradeCostLabel.AutoSize = true;
-            this.PetSkillUpgradeCostLabel.Location = new System.Drawing.Point(258, 218);
+            this.PetSkillUpgradeCostLabel.Location = new System.Drawing.Point(258, 229);
             this.PetSkillUpgradeCostLabel.Name = "PetSkillUpgradeCostLabel";
             this.PetSkillUpgradeCostLabel.Size = new System.Drawing.Size(72, 13);
             this.PetSkillUpgradeCostLabel.TabIndex = 20;
@@ -230,9 +236,9 @@
             // 
             // UpgradeSkillButton
             // 
-            this.UpgradeSkillButton.Location = new System.Drawing.Point(652, 40);
+            this.UpgradeSkillButton.Location = new System.Drawing.Point(636, 40);
             this.UpgradeSkillButton.Name = "UpgradeSkillButton";
-            this.UpgradeSkillButton.Size = new System.Drawing.Size(85, 23);
+            this.UpgradeSkillButton.Size = new System.Drawing.Size(101, 23);
             this.UpgradeSkillButton.TabIndex = 21;
             this.UpgradeSkillButton.Text = "Upgrade Skill";
             this.UpgradeSkillButton.UseVisualStyleBackColor = true;
@@ -240,9 +246,9 @@
             // 
             // FeedPetButton
             // 
-            this.FeedPetButton.Location = new System.Drawing.Point(652, 69);
+            this.FeedPetButton.Location = new System.Drawing.Point(636, 69);
             this.FeedPetButton.Name = "FeedPetButton";
-            this.FeedPetButton.Size = new System.Drawing.Size(85, 23);
+            this.FeedPetButton.Size = new System.Drawing.Size(101, 23);
             this.FeedPetButton.TabIndex = 22;
             this.FeedPetButton.Text = "Feed Pet";
             this.FeedPetButton.UseVisualStyleBackColor = true;
@@ -250,9 +256,9 @@
             // 
             // TakeGoldButton
             // 
-            this.TakeGoldButton.Location = new System.Drawing.Point(652, 98);
+            this.TakeGoldButton.Location = new System.Drawing.Point(636, 98);
             this.TakeGoldButton.Name = "TakeGoldButton";
-            this.TakeGoldButton.Size = new System.Drawing.Size(85, 23);
+            this.TakeGoldButton.Size = new System.Drawing.Size(101, 23);
             this.TakeGoldButton.TabIndex = 23;
             this.TakeGoldButton.Text = "Take Gold";
             this.TakeGoldButton.UseVisualStyleBackColor = true;
@@ -260,9 +266,9 @@
             // 
             // SellItemButton
             // 
-            this.SellItemButton.Location = new System.Drawing.Point(652, 156);
+            this.SellItemButton.Location = new System.Drawing.Point(636, 156);
             this.SellItemButton.Name = "SellItemButton";
-            this.SellItemButton.Size = new System.Drawing.Size(85, 23);
+            this.SellItemButton.Size = new System.Drawing.Size(101, 23);
             this.SellItemButton.TabIndex = 24;
             this.SellItemButton.Text = "Sell Item";
             this.SellItemButton.UseVisualStyleBackColor = true;
@@ -270,9 +276,9 @@
             // 
             // TakeItemButton
             // 
-            this.TakeItemButton.Location = new System.Drawing.Point(652, 127);
+            this.TakeItemButton.Location = new System.Drawing.Point(636, 127);
             this.TakeItemButton.Name = "TakeItemButton";
-            this.TakeItemButton.Size = new System.Drawing.Size(85, 23);
+            this.TakeItemButton.Size = new System.Drawing.Size(101, 23);
             this.TakeItemButton.TabIndex = 25;
             this.TakeItemButton.Text = "Take Item";
             this.TakeItemButton.UseVisualStyleBackColor = true;
@@ -280,9 +286,9 @@
             // 
             // EquipItemButton
             // 
-            this.EquipItemButton.Location = new System.Drawing.Point(652, 185);
+            this.EquipItemButton.Location = new System.Drawing.Point(636, 185);
             this.EquipItemButton.Name = "EquipItemButton";
-            this.EquipItemButton.Size = new System.Drawing.Size(85, 23);
+            this.EquipItemButton.Size = new System.Drawing.Size(101, 23);
             this.EquipItemButton.TabIndex = 26;
             this.EquipItemButton.Text = "Equip Item";
             this.EquipItemButton.UseVisualStyleBackColor = true;
@@ -290,18 +296,80 @@
             // 
             // UnequipItemButton
             // 
-            this.UnequipItemButton.Location = new System.Drawing.Point(652, 214);
+            this.UnequipItemButton.Location = new System.Drawing.Point(636, 214);
             this.UnequipItemButton.Name = "UnequipItemButton";
-            this.UnequipItemButton.Size = new System.Drawing.Size(85, 23);
+            this.UnequipItemButton.Size = new System.Drawing.Size(101, 23);
             this.UnequipItemButton.TabIndex = 27;
             this.UnequipItemButton.Text = "Unequip Item";
             this.UnequipItemButton.UseVisualStyleBackColor = true;
             this.UnequipItemButton.Click += new System.EventHandler(this.UnequipItemButton_Click);
             // 
+            // ChangeClassButton
+            // 
+            this.ChangeClassButton.Location = new System.Drawing.Point(636, 244);
+            this.ChangeClassButton.Name = "ChangeClassButton";
+            this.ChangeClassButton.Size = new System.Drawing.Size(101, 23);
+            this.ChangeClassButton.TabIndex = 28;
+            this.ChangeClassButton.Text = "Change Class";
+            this.ChangeClassButton.UseVisualStyleBackColor = true;
+            this.ChangeClassButton.Click += new System.EventHandler(this.ChangeClassButton_Click);
+            // 
+            // ChangeClassTextbox
+            // 
+            this.ChangeClassTextbox.Location = new System.Drawing.Point(530, 246);
+            this.ChangeClassTextbox.Name = "ChangeClassTextbox";
+            this.ChangeClassTextbox.Size = new System.Drawing.Size(100, 20);
+            this.ChangeClassTextbox.TabIndex = 29;
+            // 
+            // SmartSelfButton
+            // 
+            this.SmartSelfButton.Location = new System.Drawing.Point(636, 273);
+            this.SmartSelfButton.Name = "SmartSelfButton";
+            this.SmartSelfButton.Size = new System.Drawing.Size(101, 23);
+            this.SmartSelfButton.TabIndex = 30;
+            this.SmartSelfButton.Text = "Smart Self: ON";
+            this.SmartSelfButton.UseVisualStyleBackColor = true;
+            this.SmartSelfButton.Click += new System.EventHandler(this.SmartSelfButton_Click);
+            // 
+            // SmartEquipButton
+            // 
+            this.SmartEquipButton.Location = new System.Drawing.Point(636, 302);
+            this.SmartEquipButton.Name = "SmartEquipButton";
+            this.SmartEquipButton.Size = new System.Drawing.Size(101, 23);
+            this.SmartEquipButton.TabIndex = 31;
+            this.SmartEquipButton.Text = "Smart Equip: OFF";
+            this.SmartEquipButton.UseVisualStyleBackColor = true;
+            this.SmartEquipButton.Click += new System.EventHandler(this.SmartEquipButton_Click);
+            // 
+            // SmartSellButton
+            // 
+            this.SmartSellButton.Location = new System.Drawing.Point(636, 331);
+            this.SmartSellButton.Name = "SmartSellButton";
+            this.SmartSellButton.Size = new System.Drawing.Size(101, 23);
+            this.SmartSellButton.TabIndex = 32;
+            this.SmartSellButton.Text = "Smart Sell: ON";
+            this.SmartSellButton.UseVisualStyleBackColor = true;
+            this.SmartSellButton.Click += new System.EventHandler(this.SmartSellButton_Click);
+            // 
+            // PetSkillCurrentNameLabel
+            // 
+            this.PetSkillCurrentNameLabel.AutoSize = true;
+            this.PetSkillCurrentNameLabel.Location = new System.Drawing.Point(258, 190);
+            this.PetSkillCurrentNameLabel.Name = "PetSkillCurrentNameLabel";
+            this.PetSkillCurrentNameLabel.Size = new System.Drawing.Size(72, 13);
+            this.PetSkillCurrentNameLabel.TabIndex = 33;
+            this.PetSkillCurrentNameLabel.Text = "Current Name";
+            // 
             // PetTabPage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.PetSkillCurrentNameLabel);
+            this.Controls.Add(this.SmartSellButton);
+            this.Controls.Add(this.SmartEquipButton);
+            this.Controls.Add(this.SmartSelfButton);
+            this.Controls.Add(this.ChangeClassTextbox);
+            this.Controls.Add(this.ChangeClassButton);
             this.Controls.Add(this.UnequipItemButton);
             this.Controls.Add(this.EquipItemButton);
             this.Controls.Add(this.TakeItemButton);
@@ -363,5 +431,11 @@
         private System.Windows.Forms.Button TakeItemButton;
         private System.Windows.Forms.Button EquipItemButton;
         private System.Windows.Forms.Button UnequipItemButton;
+        private System.Windows.Forms.Button ChangeClassButton;
+        private System.Windows.Forms.TextBox ChangeClassTextbox;
+        private System.Windows.Forms.Button SmartSelfButton;
+        private System.Windows.Forms.Button SmartEquipButton;
+        private System.Windows.Forms.Button SmartSellButton;
+        private System.Windows.Forms.Label PetSkillCurrentNameLabel;
     }
 }
