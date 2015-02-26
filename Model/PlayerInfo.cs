@@ -28,8 +28,8 @@ namespace IdleLandsGUI.Model
         public StatInfo xp { get; set; }
         [IconElement(Name = "money.png", Colour = "Yellow", HideMax = true)]
         public StatInfo gold { get; set; }
-        public string x { get; set; }
-        public string y { get; set; }
+        public int x { get; set; }
+        public int y { get; set; }
         public string map { get; set; }
         public string professionName { get; set; }
         public List<EquipmentInfo> overflow { get; set; }

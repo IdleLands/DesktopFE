@@ -122,6 +122,7 @@
             this.ServerComboBox.FormattingEnabled = true;
             this.ServerComboBox.Items.AddRange(new object[] {
             "http://localhost:80",
+            "http://localhost:5964",
             "https://api.idle.land (Official)",
             "http://31.25.101.129:3001 (Oipo-dev)"});
             this.ServerComboBox.Location = new System.Drawing.Point(76, 13);

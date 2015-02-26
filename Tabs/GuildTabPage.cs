@@ -88,7 +88,8 @@ namespace IdleLandsGUI.Tabs
             InvitesListbox.DataSource = invitesData;
 
             GuildInfoNameLabel.Text = "Guild Name: " + info.name;
-            GuildInfoGoldLabel.Text = "Guild Gold: " + info.gold.__current;
+            if(info.gold != null)
+                GuildInfoGoldLabel.Text = "Guild Gold: " + info.gold.__current;
             GuildInfoInvitesLabel.Text = "Guild Invites Remaining: " + info.invitesAvailable;
             GuildInfoLevelLabel.Text = "Guild Level: " + info.level;
         }
@@ -394,6 +395,21 @@ namespace IdleLandsGUI.Tabs
             () =>
             {
                 MoveGuildButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void BuyBuffButton_Click(object sender, EventArgs e)
+        {
+            BuyBuffButton.Enabled = false;
+            _comms.SendBuyBuffGuild(BuyBuffTextbox.Text, (int)BuyBuffNumeric.Value,
+            () =>
+            {
+                BuyBuffButton.Enabled = true;
                 return true;
             }, (string msg, int code) =>
             {

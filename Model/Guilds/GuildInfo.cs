@@ -19,6 +19,7 @@ namespace IdleLandsGUI.Model.Guilds
         public string buffs { get; set; }
         public StatInfo gold { get; set; }
         public string @base { get; set;}
+        public bool autoRenew { get; set; }
         public List<GuildMemberInfo> members { get; set; }
     }
 }

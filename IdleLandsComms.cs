@@ -1,5 +1,6 @@
 ﻿using IdleLandsGUI.Model;
 using IdleLandsGUI.Model.Guilds;
+using IdleLandsGUI.Model.Map;
 using IdleLandsGUI.Model.Pets;
 using Newtonsoft.Json;
 using RestSharp;
@@ -37,6 +38,7 @@ namespace IdleLandsGUI
             _petUpdateDelegates = new List<PetUpdate>();
             _guildUpdateDelegates = new List<GuildUpdate>();
             _guildInvitesUpdateDelegates = new List<GuildInvitesUpdate>();
+            _mapUpdateDelegates = new List<MapUpdate>();
             _timeSinceLastTurn = new Stopwatch();
             _loggedIn = false;
             AppSettings apps = new AppSettings();
@@ -197,6 +199,26 @@ namespace IdleLandsGUI
             LogResponse(response);
 
             doOnComplete();
+        }
+
+        public async void SendResetPassword(string password, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
+        {
+            var request = new RestRequest("/player/auth/password", Method.PATCH);
+            request.AddParameter("identifier", GetIdentifier());
+            request.AddParameter("token", _token);
+            request.AddParameter("password", password);
+
+            LogRequest(request);
+
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
+
+            LogResponse(response);
+
+            CompleteRequest(response, () =>
+            {
+                SendResetPassword(password, doOnComplete, doOnFailure);
+                return true;
+            }, doOnComplete, doOnFailure);
         }
 
         public async void SendTurn()
@@ -616,6 +638,27 @@ namespace IdleLandsGUI
             }, doOnComplete, doOnFailure);
         }
 
+        public async void SendBuyBuffGuild(string type, int tier, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
+        {
+            var request = new RestRequest("/guild/manage/buff", Method.POST);
+            request.AddParameter("identifier", GetIdentifier());
+            request.AddParameter("type", type);
+            request.AddParameter("tier", tier);
+            request.AddParameter("token", _token);
+
+            LogRequest(request);
+
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
+
+            LogResponse(response);
+
+            CompleteRequest(response, () =>
+            {
+                SendBuyBuffGuild(type, tier, doOnComplete, doOnFailure);
+                return true;
+            }, doOnComplete, doOnFailure);
+        }
+
         public async void SendBuyPet(string type, string name, List<String> attrs, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
         {
             var request = new RestRequest("/pet/buy", Method.PUT);
@@ -871,6 +914,67 @@ namespace IdleLandsGUI
             }, doOnComplete, doOnFailure);
         }
 
+        public async void SendSetString(string type, string msg, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
+        {
+            var request = new RestRequest("/player/manage/string/set", Method.PUT);
+            request.AddParameter("identifier", GetIdentifier());
+            request.AddParameter("type", type);
+            request.AddParameter("msg", msg);
+            request.AddParameter("token", _token);
+
+            LogRequest(request);
+
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
+
+            LogResponse(response);
+
+            CompleteRequest(response, () =>
+            {
+                SendSetString(type, msg, doOnComplete, doOnFailure);
+                return true;
+            }, doOnComplete, doOnFailure);
+        }
+
+        public async void SendRemoveString(string type, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
+        {
+            var request = new RestRequest("/player/manage/string/remove", Method.POST);
+            request.AddParameter("identifier", GetIdentifier());
+            request.AddParameter("type", type);
+            request.AddParameter("token", _token);
+
+            LogRequest(request);
+
+            var response = await GetClient().ExecuteTaskAsync<ActionResponse>(request);
+
+            LogResponse(response);
+
+            CompleteRequest(response, () =>
+            {
+                SendRemoveString(type, doOnComplete, doOnFailure);
+                return true;
+            }, doOnComplete, doOnFailure);
+        }
+
+        public async void SendRequestMap(string map, Func<bool> doOnComplete, Func<string, int, bool> doOnFailure)
+        {
+            var request = new RestRequest("/game/map", Method.POST);
+            request.AddParameter("identifier", GetIdentifier());
+            request.AddParameter("map", map);
+            request.AddParameter("token", _token);
+
+            LogRequest(request);
+
+            var response = await GetClient().ExecuteTaskAsync<MapResponse>(request);
+
+            LogResponse(response);
+
+            CompleteRequest(response, () =>
+            {
+                SendRequestMap(map, doOnComplete, doOnFailure);
+                return true;
+            }, doOnComplete, doOnFailure);
+        }
+
         public void DoTick(object sender, EventArgs e)
         {
             if (!_loggedIn)
@@ -932,12 +1036,24 @@ namespace IdleLandsGUI
                 SendPetUpdate(petResponse.Data);
             }
 
+            IRestResponse<MapResponse> mapResponse = response as IRestResponse<MapResponse>;
+            if(mapResponse != null && mapResponse.Data.map != null)
+            {
+                var MapInfo = JsonConvert.DeserializeObject<MapInfo>(mapResponse.Data.map);
+                SendMapUpdate(MapInfo);
+            }
+
             if (doOnComplete != null)
                 doOnComplete();
         }
 
         private void LogRequest(RestRequest request, [CallerMemberName]string memberName = "")
         {
+            request.OnBeforeDeserialization = (eq) =>
+            {
+                return;
+            };
+
             if (_logRequests)
                 System.IO.File.AppendAllText("requests.txt", "\r\n\r\n!!!" + memberName + " @ " + DateTime.Now.ToString() + "!!!\r\n\r\n" + JsonConvert.SerializeObject(request));
         }
@@ -1022,18 +1138,25 @@ namespace IdleLandsGUI
             public List<PetInfo> pets { get; set; }
         }
 
+        public class MapResponse : BaseResponse
+        {
+            public string map { get; set; }
+        }
+
         
         //Delegate definitions
         public delegate void PlayerUpdate(PlayerInfo player);
         public delegate void PetUpdate(PetResponse player);
         public delegate void GuildUpdate(GuildInfo guild);
         public delegate void GuildInvitesUpdate(List<string> guildInvites);
+        public delegate void MapUpdate(MapInfo map);
 
         //Actual Delegates
         private List<PlayerUpdate> _playerUpdateDelegates { get; set; }
         private List<PetUpdate> _petUpdateDelegates { get; set; }
         private List<GuildUpdate> _guildUpdateDelegates { get; set; }
         private List<GuildInvitesUpdate> _guildInvitesUpdateDelegates { get; set; }
+        private List<MapUpdate> _mapUpdateDelegates { get; set; }
         
         private void SendPlayerUpdate(PlayerInfo info)
         {
@@ -1067,6 +1190,14 @@ namespace IdleLandsGUI
             }
         }
 
+        private void SendMapUpdate(MapInfo info)
+        {
+            foreach (var dele in _mapUpdateDelegates)
+            {
+                dele(info);
+            }
+        }
+
         public void AddPlayerUpdateDelegate(PlayerUpdate updateDelegate)
         {
             _playerUpdateDelegates.Add(updateDelegate);
@@ -1087,6 +1218,11 @@ namespace IdleLandsGUI
             _guildInvitesUpdateDelegates.Add(updateDelegate);
         }
 
+        public void AddMapUpdateDelegate(MapUpdate updateDelegate)
+        {
+            _mapUpdateDelegates.Add(updateDelegate);
+        }
+
         public void RemovePlayerUpdateDelegate(PlayerUpdate updateDelegate)
         {
             _playerUpdateDelegates.Remove(updateDelegate);
@@ -1105,6 +1241,10 @@ namespace IdleLandsGUI
         public void RemoveGuildInvitesUpdateDelegate(GuildInvitesUpdate updateDelegate)
         {
             _guildInvitesUpdateDelegates.Remove(updateDelegate);
+        }
+        public void RemoveMapUpdateDelegate(MapUpdate updateDelegate)
+        {
+            _mapUpdateDelegates.Remove(updateDelegate);
         }
     }
 }

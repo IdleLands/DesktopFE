@@ -31,6 +31,11 @@
             this.InfoTabControl = new System.Windows.Forms.TabControl();
             this.PlayerInfoTab = new System.Windows.Forms.TabPage();
             this.PlayerSettingsTab = new System.Windows.Forms.TabPage();
+            this.StringMessageTextbox = new System.Windows.Forms.TextBox();
+            this.StringTypeTextbox = new System.Windows.Forms.TextBox();
+            this.SetStringButton = new System.Windows.Forms.Button();
+            this.ResetPasswordTextbox = new System.Windows.Forms.TextBox();
+            this.ResetPasswordButton = new System.Windows.Forms.Button();
             this.ApplyPlayerSettingsButton = new System.Windows.Forms.Button();
             this.GenderGroupBox = new System.Windows.Forms.GroupBox();
             this.OtherTextBox = new System.Windows.Forms.TextBox();
@@ -56,6 +61,7 @@
             this.PetTab = new System.Windows.Forms.TabPage();
             this.EventsTab = new System.Windows.Forms.TabPage();
             this.GuildTab = new System.Windows.Forms.TabPage();
+            this.MapTab = new System.Windows.Forms.TabPage();
             this.InfoTabControl.SuspendLayout();
             this.PlayerSettingsTab.SuspendLayout();
             this.GenderGroupBox.SuspendLayout();
@@ -78,6 +84,7 @@
             this.InfoTabControl.Controls.Add(this.PetTab);
             this.InfoTabControl.Controls.Add(this.EventsTab);
             this.InfoTabControl.Controls.Add(this.GuildTab);
+            this.InfoTabControl.Controls.Add(this.MapTab);
             this.InfoTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.InfoTabControl.Location = new System.Drawing.Point(0, 0);
             this.InfoTabControl.Name = "InfoTabControl";
@@ -97,6 +104,11 @@
             // 
             // PlayerSettingsTab
             // 
+            this.PlayerSettingsTab.Controls.Add(this.StringMessageTextbox);
+            this.PlayerSettingsTab.Controls.Add(this.StringTypeTextbox);
+            this.PlayerSettingsTab.Controls.Add(this.SetStringButton);
+            this.PlayerSettingsTab.Controls.Add(this.ResetPasswordTextbox);
+            this.PlayerSettingsTab.Controls.Add(this.ResetPasswordButton);
             this.PlayerSettingsTab.Controls.Add(this.ApplyPlayerSettingsButton);
             this.PlayerSettingsTab.Controls.Add(this.GenderGroupBox);
             this.PlayerSettingsTab.Controls.Add(this.PriorityPointsGroupBox);
@@ -107,6 +119,47 @@
             this.PlayerSettingsTab.TabIndex = 3;
             this.PlayerSettingsTab.Text = "Player Settings";
             this.PlayerSettingsTab.UseVisualStyleBackColor = true;
+            // 
+            // StringMessageTextbox
+            // 
+            this.StringMessageTextbox.Location = new System.Drawing.Point(215, 377);
+            this.StringMessageTextbox.Name = "StringMessageTextbox";
+            this.StringMessageTextbox.Size = new System.Drawing.Size(100, 20);
+            this.StringMessageTextbox.TabIndex = 13;
+            // 
+            // StringTypeTextbox
+            // 
+            this.StringTypeTextbox.Location = new System.Drawing.Point(109, 377);
+            this.StringTypeTextbox.Name = "StringTypeTextbox";
+            this.StringTypeTextbox.Size = new System.Drawing.Size(100, 20);
+            this.StringTypeTextbox.TabIndex = 12;
+            // 
+            // SetStringButton
+            // 
+            this.SetStringButton.Location = new System.Drawing.Point(4, 375);
+            this.SetStringButton.Name = "SetStringButton";
+            this.SetStringButton.Size = new System.Drawing.Size(99, 23);
+            this.SetStringButton.TabIndex = 11;
+            this.SetStringButton.Text = "Set String";
+            this.SetStringButton.UseVisualStyleBackColor = true;
+            this.SetStringButton.Click += new System.EventHandler(this.SetStringButton_Click);
+            // 
+            // ResetPasswordTextbox
+            // 
+            this.ResetPasswordTextbox.Location = new System.Drawing.Point(109, 348);
+            this.ResetPasswordTextbox.Name = "ResetPasswordTextbox";
+            this.ResetPasswordTextbox.Size = new System.Drawing.Size(100, 20);
+            this.ResetPasswordTextbox.TabIndex = 10;
+            // 
+            // ResetPasswordButton
+            // 
+            this.ResetPasswordButton.Location = new System.Drawing.Point(4, 346);
+            this.ResetPasswordButton.Name = "ResetPasswordButton";
+            this.ResetPasswordButton.Size = new System.Drawing.Size(99, 23);
+            this.ResetPasswordButton.TabIndex = 9;
+            this.ResetPasswordButton.Text = "Reset Password";
+            this.ResetPasswordButton.UseVisualStyleBackColor = true;
+            this.ResetPasswordButton.Click += new System.EventHandler(this.ResetPasswordButton_Click);
             // 
             // ApplyPlayerSettingsButton
             // 
@@ -354,6 +407,16 @@
             this.GuildTab.Text = "Guild";
             this.GuildTab.UseVisualStyleBackColor = true;
             // 
+            // MapTab
+            // 
+            this.MapTab.Location = new System.Drawing.Point(4, 22);
+            this.MapTab.Name = "MapTab";
+            this.MapTab.Padding = new System.Windows.Forms.Padding(3);
+            this.MapTab.Size = new System.Drawing.Size(776, 536);
+            this.MapTab.TabIndex = 8;
+            this.MapTab.Text = "Map";
+            this.MapTab.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -364,6 +427,7 @@
             this.Text = "IdleLands DesktopFE";
             this.InfoTabControl.ResumeLayout(false);
             this.PlayerSettingsTab.ResumeLayout(false);
+            this.PlayerSettingsTab.PerformLayout();
             this.GenderGroupBox.ResumeLayout(false);
             this.GenderGroupBox.PerformLayout();
             this.PriorityPointsGroupBox.ResumeLayout(false);
@@ -408,6 +472,12 @@
         private System.Windows.Forms.TabPage EquipmentTab;
         private System.Windows.Forms.TextBox OtherTextBox;
         private System.Windows.Forms.RadioButton OtherRadioButton;
+        private System.Windows.Forms.TextBox ResetPasswordTextbox;
+        private System.Windows.Forms.Button ResetPasswordButton;
+        private System.Windows.Forms.TextBox StringMessageTextbox;
+        private System.Windows.Forms.TextBox StringTypeTextbox;
+        private System.Windows.Forms.Button SetStringButton;
+        private System.Windows.Forms.TabPage MapTab;
 
 
     }

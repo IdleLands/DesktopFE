@@ -62,10 +62,14 @@
             this.MoveGuildButton = new System.Windows.Forms.Button();
             this.GuildInfoLevelLabel = new System.Windows.Forms.Label();
             this.ConstructBuildingSlotNumeric = new System.Windows.Forms.NumericUpDown();
+            this.BuyBuffButton = new System.Windows.Forms.Button();
+            this.BuyBuffTextbox = new System.Windows.Forms.TextBox();
+            this.BuyBuffNumeric = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.GuildTaxNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PersonalTaxNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DonateNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ConstructBuildingSlotNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.BuyBuffNumeric)).BeginInit();
             this.SuspendLayout();
             // 
             // AcceptInviteGuildButton
@@ -187,7 +191,7 @@
             // InvitesListbox
             // 
             this.InvitesListbox.FormattingEnabled = true;
-            this.InvitesListbox.Location = new System.Drawing.Point(4, 317);
+            this.InvitesListbox.Location = new System.Drawing.Point(293, 437);
             this.InvitesListbox.Name = "InvitesListbox";
             this.InvitesListbox.Size = new System.Drawing.Size(120, 95);
             this.InvitesListbox.TabIndex = 22;
@@ -195,7 +199,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(1, 301);
+            this.label2.Location = new System.Drawing.Point(290, 421);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(101, 13);
             this.label2.TabIndex = 23;
@@ -290,7 +294,7 @@
             // 
             this.ConstructBuildingTextbox.Location = new System.Drawing.Point(111, 212);
             this.ConstructBuildingTextbox.Name = "ConstructBuildingTextbox";
-            this.ConstructBuildingTextbox.Size = new System.Drawing.Size(101, 20);
+            this.ConstructBuildingTextbox.Size = new System.Drawing.Size(102, 20);
             this.ConstructBuildingTextbox.TabIndex = 33;
             // 
             // GuildInfoNameLabel
@@ -324,7 +328,7 @@
             // 
             this.UpgradeBuildingTextbox.Location = new System.Drawing.Point(111, 241);
             this.UpgradeBuildingTextbox.Name = "UpgradeBuildingTextbox";
-            this.UpgradeBuildingTextbox.Size = new System.Drawing.Size(101, 20);
+            this.UpgradeBuildingTextbox.Size = new System.Drawing.Size(102, 20);
             this.UpgradeBuildingTextbox.TabIndex = 38;
             // 
             // UpgradeBuildingButton
@@ -341,7 +345,7 @@
             // 
             this.MoveGuildTextbox.Location = new System.Drawing.Point(111, 270);
             this.MoveGuildTextbox.Name = "MoveGuildTextbox";
-            this.MoveGuildTextbox.Size = new System.Drawing.Size(101, 20);
+            this.MoveGuildTextbox.Size = new System.Drawing.Size(102, 20);
             this.MoveGuildTextbox.TabIndex = 40;
             // 
             // MoveGuildButton
@@ -370,10 +374,42 @@
             this.ConstructBuildingSlotNumeric.Size = new System.Drawing.Size(120, 20);
             this.ConstructBuildingSlotNumeric.TabIndex = 42;
             // 
+            // BuyBuffButton
+            // 
+            this.BuyBuffButton.Location = new System.Drawing.Point(4, 298);
+            this.BuyBuffButton.Name = "BuyBuffButton";
+            this.BuyBuffButton.Size = new System.Drawing.Size(103, 23);
+            this.BuyBuffButton.TabIndex = 43;
+            this.BuyBuffButton.Text = "Buy Buff";
+            this.BuyBuffButton.UseVisualStyleBackColor = true;
+            this.BuyBuffButton.Click += new System.EventHandler(this.BuyBuffButton_Click);
+            // 
+            // BuyBuffTextbox
+            // 
+            this.BuyBuffTextbox.Location = new System.Drawing.Point(111, 300);
+            this.BuyBuffTextbox.Name = "BuyBuffTextbox";
+            this.BuyBuffTextbox.Size = new System.Drawing.Size(102, 20);
+            this.BuyBuffTextbox.TabIndex = 44;
+            // 
+            // BuyBuffNumeric
+            // 
+            this.BuyBuffNumeric.Location = new System.Drawing.Point(218, 301);
+            this.BuyBuffNumeric.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.BuyBuffNumeric.Name = "BuyBuffNumeric";
+            this.BuyBuffNumeric.Size = new System.Drawing.Size(120, 20);
+            this.BuyBuffNumeric.TabIndex = 45;
+            // 
             // GuildTabPage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.BuyBuffNumeric);
+            this.Controls.Add(this.BuyBuffTextbox);
+            this.Controls.Add(this.BuyBuffButton);
             this.Controls.Add(this.ConstructBuildingSlotNumeric);
             this.Controls.Add(this.GuildInfoLevelLabel);
             this.Controls.Add(this.MoveGuildTextbox);
@@ -414,6 +450,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.PersonalTaxNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DonateNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ConstructBuildingSlotNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.BuyBuffNumeric)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -455,5 +492,8 @@
         private System.Windows.Forms.Button MoveGuildButton;
         private System.Windows.Forms.Label GuildInfoLevelLabel;
         private System.Windows.Forms.NumericUpDown ConstructBuildingSlotNumeric;
+        private System.Windows.Forms.Button BuyBuffButton;
+        private System.Windows.Forms.TextBox BuyBuffTextbox;
+        private System.Windows.Forms.NumericUpDown BuyBuffNumeric;
     }
 }

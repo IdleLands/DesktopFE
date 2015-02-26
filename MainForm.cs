@@ -45,6 +45,7 @@ namespace IdleLandsGUI
 
             PetTab.Controls.Add(new PetTabPage(petResponse, comms));
             GuildTab.Controls.Add(new GuildTabPage(response.player, response.guild, response.guildInvites, comms));
+            MapTab.Controls.Add(new MapTabPage(response.player, comms));
         }
 
         public void UpdatePlayer(PlayerInfo info)
@@ -652,6 +653,40 @@ namespace IdleLandsGUI
                 OtherTextBox.Enabled = true;
             else
                 OtherTextBox.Enabled = false;
+        }
+
+        private void ResetPasswordButton_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show(this, "Really reset your password?", "Reset password?",
+                MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.Cancel)
+            {
+                return;
+            }
+
+            ResetPasswordButton.Enabled = false;
+            _comms.SendResetPassword(ResetPasswordTextbox.Text, () =>
+            {
+                ResetPasswordButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
+        }
+
+        private void SetStringButton_Click(object sender, EventArgs e)
+        {
+            SetStringButton.Enabled = false;
+            _comms.SendSetString(StringTypeTextbox.Text, StringMessageTextbox.Text, () =>
+            {
+                SetStringButton.Enabled = true;
+                return true;
+            }, (string msg, int code) =>
+            {
+                MessageBox.Show(code + ": " + msg);
+                return true;
+            });
         }
     }
 }
